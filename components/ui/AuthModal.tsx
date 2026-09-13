@@ -117,9 +117,9 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button 
             type="submit"
             disabled={isLoading}
-            className="w-full relative overflow-hidden bg-white text-black font-semibold rounded-2xl py-3.5 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-[0_0_0_1px_rgba(255,255,255,0.15),_0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-70 disabled:hover:scale-100"
+            className="group w-full relative overflow-hidden bg-white text-black font-semibold rounded-2xl py-3.5 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-[0_0_0_1px_rgba(255,255,255,0.15),_0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-70 disabled:hover:scale-100"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
             {isLoading ? (
               <i className="fa-solid fa-circle-notch animate-spin"></i>
             ) : (

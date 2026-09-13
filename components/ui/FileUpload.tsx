@@ -69,7 +69,7 @@ export default function FileUpload({ onFileSelect, isLoading }: FileUploadProps)
       
       {/* Shimmer gradient overlay */}
       {!isLoading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer-slow pointer-events-none z-10"></div>
       )}
       
       {isLoading ? (
