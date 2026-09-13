@@ -1,8 +1,12 @@
 <div align="center">
-  <img src="./assets/logo.webp" alt="Luminate Logo" width="120" height="120" />
-  <h1>✨ Luminate</h1>
-  <p><strong>Intelligence Designed To Evolve Your Learning.</strong></p>
-  <p>Transform dense PDF lectures into interactive 3D flashcards and dynamic multiple-choice quizzes in seconds, powered by Gemini AI.</p>
+  <img src="./public/assets/logo.svg" alt="Luminate Logo" width="160" height="160" />
+  <h1 align="center">✨ Luminate</h1>
+  <p align="center">
+    <strong>Intelligence Designed To Evolve Your Learning.</strong>
+  </p>
+  <p align="center">
+    An award-winning, premium active recall engine that transforms dense lectures into living, neural knowledge graphs in seconds.
+  </p>
 </div>
 
 <br />
@@ -16,33 +20,67 @@
 
 <br />
 
-Luminate is an enterprise-grade AI study companion designed to solve the active recall problem. By uploading any PDF lecture, slide deck, or reading material, Luminate utilizes the high-speed inference of **Google's Gemini 2.5 Flash** to extract core concepts and automatically generate beautiful, interactive study materials.
+---
 
-## 🚀 Features
+## ⚡ The Problem: Linear Learning is Dead
 
-- **⚡ Instant PDF Parsing**: Drag and drop any PDF. Luminate parses the text locally and securely streams it to the AI.
-- **🧠 3D Interactive Flashcards**: Study with beautiful, physics-based 3D flashcards. They feature a full 180-degree flip animation, inner glow shadows, and a premium glassmorphism aesthetic.
-- **🎯 Dynamic AI Quizzes**: Test your knowledge with multiple-choice questions. The quiz engine provides immediate color-coded feedback, scoring, and detailed explanations for every answer to reinforce learning.
-- **💎 Award-Winning UI/UX**: Built with G2/G3 continuous curve radii, frosted glass backdrops, ambient neon light meshes, and buttery-smooth Tailwind v4 animations (shimmers, pulses, and reveal effects).
-- **🔒 Secure Authentication**: Frictionless onboarding using Firebase Authentication (Google OAuth and Email/Password).
-- **⏱️ One-Click Demo Mode**: Don't have a PDF handy? Click "Load Demo Topic" in the dashboard to instantly experience the UI with pre-generated Quantum Computing study materials!
+Traditional study methods—linear reading, passive highlighting, and manually organizing notes—are fundamentally broken. They fail to connect complex concepts, waste hours of time, and result in sub-optimal review timing that leads to memory decay.
 
-## 🛠️ Tech Stack
+## 🌟 The Solution: Luminate AI
 
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **AI Engine**: [Google Generative AI](https://ai.google.dev/) (Gemini 2.5 Flash)
-- **Auth**: [Firebase Authentication](https://firebase.google.com/)
+**Luminate** is not just another flashcard app. It is an enterprise-grade AI study companion that acts as your personal Socratic tutor. By uploading any PDF lecture, slide deck, or reading material, Luminate utilizes the ultra-fast inference of **Google's Gemini 2.5 Flash** to extract core concepts, synthesize relationships, and automatically generate a premium, interactive curriculum.
+
+---
+
+## 🚀 Why Choose Luminate?
+
+### 1. 🧠 Dynamic Knowledge Synthesis
+Don't just extract text—understand context. Luminate builds a multi-dimensional map of your curriculum. Our **Synthesis Pipeline** breaks down dense PDFs into digestible, interconnected nodes of information before you even flip a card.
+
+### 2. 💎 Award-Winning "Premium" Aesthetic
+Built with an obsessive focus on UI/UX, combining the sleek minimalism of Apple with the raw, tech-forward creativity of Nothing.
+- **Glassmorphism & Fluid Lighting:** Ambient neon meshes (`mix-blend-screen`) simulate a living 3D environment.
+- **Physics-Based Motion:** Custom easing curves (`cubic-bezier(0.23, 1, 0.32, 1)`) drive buttery-smooth hover states, reveals, and 180-degree 3D card flips.
+- **Continuous Curve Radii:** iOS-style squircles and mathematically perfect paddings.
+
+### 3. 🎯 Socratic AI Tutor & Spaced Repetition
+Test your knowledge with dynamic multiple-choice quizzes and interactive flashcards. Luminate provides immediate color-coded feedback, scoring, and detailed explanations for every answer—acting as a Socratic tutor that guides you to the truth without giving it away.
+
+### 4. ⏱️ Frictionless Onboarding
+A beautiful side-pane Auth Modal powered by Firebase gets users in instantly. No PDF handy? Click **"Load Demo Topic"** to instantly experience the dashboard with pre-generated Quantum Computing study materials!
+
+---
+
+## 🧠 AI Architecture (Powered by Gemini 2.5)
+
+Luminate leverages **Gemini 2.5 Flash** because it offers the perfect intersection of **massive context windows** (capable of ingesting entire textbooks) and **extremely low-latency inference** (for near-instant UI generation).
+
+**The Backend Pipeline:**
+1. **Ingestion & Extraction:** The raw PDF buffer is parsed into string text on the server.
+2. **Contextual Prompting:** The text is wrapped in a highly specific system prompt enforcing structured JSON output.
+3. **Structured Generation:** We utilize `responseMimeType: "application/json"` and strict `responseSchema` definitions in the Gemini API call. This guarantees that the LLM returns exactly the data structures our React components expect (Array of Flashcards + Array of Quiz Questions) with zero parsing errors.
+
+---
+
+## 🛠️ Tech Stack & Engineering
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router, Server Actions)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) (Using bleeding-edge `@theme` blocks and custom animations)
+- **AI Engine**: [Google Generative AI](https://ai.google.dev/) (Gemini 2.5 Flash API)
+- **Authentication**: [Firebase Auth](https://firebase.google.com/) (Google OAuth / Email)
 - **PDF Parsing**: `pdf-parse-fork`
 - **Icons**: Font Awesome Pro
 
-## 📦 Getting Started
+---
+
+## 📦 Run it Locally
+
+Experience the future of learning on your own machine.
 
 ### Prerequisites
-
 - Node.js 18+
 - A Google Gemini API key (from [Google AI Studio](https://aistudio.google.com/))
-- A Firebase project with Authentication enabled
+- A Firebase project (Authentication enabled)
 
 ### Installation
 
@@ -58,11 +96,11 @@ Luminate is an enterprise-grade AI study companion designed to solve the active 
    ```
 
 3. **Configure Environment Variables:**
-   Create a `.env.local` file in the root directory and add your keys:
+   Create a `.env.local` file in the root directory:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
-   *(Note: Firebase client configuration is currently hardcoded for the challenge environment in `lib/firebase.ts`, but you can replace it with your own config if deploying independently).*
+   *(Note: Firebase client configuration is currently configured for the demo environment in `lib/firebase.ts`, but you can replace it with your own config if deploying independently).*
 
 4. **Start the development server:**
    ```bash
@@ -70,21 +108,11 @@ Luminate is an enterprise-grade AI study companion designed to solve the active 
    ```
    Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-## 🧠 AI Architecture (Gemini 2.5 Flash)
-
-Luminate leverages **Gemini 2.5 Flash** because it offers the perfect balance of massive context windows (for large PDFs) and extremely low-latency inference (for near-instant generation).
-
-The backend pipeline (`app/api/generate/route.ts`):
-1. **Extraction**: The raw PDF buffer is parsed into string text.
-2. **Prompt Engineering**: The text is wrapped in a highly specific system prompt enforcing structured JSON output.
-3. **Structured Generation**: We use `responseMimeType: "application/json"` and strict `responseSchema` definitions in the Gemini API call to guarantee the LLM returns exactly the interface our React components expect (Array of Flashcards + Array of Quiz Questions).
-
-## 🎨 Design Philosophy
-
-This project rejects generic templates. It was meticulously designed to feel like a premium, enterprise-level SaaS product:
-- **Geometry**: Custom border-radii mapping to iOS-style squircle continuous curves.
-- **Lighting**: `mix-blend-screen` ambient background meshes simulate a 3D environment.
-- **Motion Physics**: Easing curves (`cubic-bezier(0.23, 1, 0.32, 1)`) are applied to flip, slide, and reveal animations to ensure physics-based, natural movement rather than linear snaps.
-
 ---
-*Built for the AI Code Submission Challenge.*
+
+<div align="center">
+  <h3>Ready to evolve?</h3>
+  <p>Luminate was meticulously designed to stand out. We didn't just build an app; we built an experience.</p>
+  <br/>
+  <i>Built for the AI Code Submission Challenge.</i>
+</div>
