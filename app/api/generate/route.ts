@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     const extractedText = pdfData.text.trim();
     if (!extractedText || extractedText.length < 50) {
-      return NextResponse.json({ error: "Insufficient text in PDF" }, { status: 400 });
+      return NextResponse.json({ error: "No readable text found in this PDF. Please ensure it is not a scanned image." }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;

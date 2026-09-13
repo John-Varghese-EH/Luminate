@@ -1,6 +1,7 @@
 @font-face {
   font-family: "Geist Pixel Circle";
-  src: url("/fonts/GeistPixel-Circle.woff2") format("woff2");
+  /* Fallback to system fonts since the actual woff2 was missing from the repo */
+  src: local("Courier New");
   font-weight: 400;
   font-display: swap;
 }

@@ -166,13 +166,12 @@ export default function LandingPage() {
             </div>
 
             <h1 className="headline anim">
-              <span className="line" style={{ "--d": "0.12s" } as React.CSSProperties}>Intelligence</span>
-              <span className="line" style={{ "--d": "0.3s" } as React.CSSProperties}>Designed To Evolve</span>
+              <span className="line" style={{ "--d": "0.12s" } as React.CSSProperties}>Transform Lectures</span>
+              <span className="line" style={{ "--d": "0.3s" } as React.CSSProperties}>Into Active Recall</span>
             </h1>
 
             <p className="subhead anim" style={{ "--d": "0.28s" } as React.CSSProperties}>
-              Build applications that reason, adapt and collaborate using a modular
-              AI platform designed for production.
+              Instantly convert your PDF study materials into interactive 3D flashcards and dynamic multiple-choice quizzes powered by Gemini AI.
             </p>
 
             <button className="cta anim" style={{ "--d": "0.4s" } as React.CSSProperties} onClick={() => setIsAuthOpen(true)}>Get Started</button>
@@ -183,37 +182,37 @@ export default function LandingPage() {
           <div className="stat-item anim" style={{ "--d": "0.5s" } as React.CSSProperties}>
             <div className="stat-val-group">
               <span className="stat-icon">&lt;</span>
-              <span className="stat-val" data-target="120" data-decimals="0">0</span>
-              <span className="stat-suffix">ms</span>
+              <span className="stat-val" data-target="15" data-decimals="0">0</span>
+              <span className="stat-suffix">s</span>
             </div>
-            <div className="stat-label">Inference Time</div>
+            <div className="stat-label">Generation Time</div>
           </div>
 
           <div className="stat-item anim" style={{ "--d": "0.58s" } as React.CSSProperties}>
             <div className="stat-val-group">
               <span className="stat-icon">%</span>
-              <span className="stat-val" data-target="99.99" data-decimals="2">0.00</span>
+              <span className="stat-val" data-target="99.9" data-decimals="1">0.0</span>
               <span className="stat-suffix">%</span>
             </div>
-            <div className="stat-label">Platform Uptime</div>
+            <div className="stat-label">Concept Extraction</div>
           </div>
 
           <div className="stat-item anim" style={{ "--d": "0.66s" } as React.CSSProperties}>
             <div className="stat-val-group">
               <span className="stat-icon">*</span>
-              <span className="stat-val" data-target="24" data-decimals="0">0</span>
-              <span className="stat-suffix">/7</span>
+              <span className="stat-val" data-target="1000" data-decimals="0">0</span>
+              <span className="stat-suffix">+</span>
             </div>
-            <div className="stat-label">Autonomous Runtime</div>
+            <div className="stat-label">PDFs Processed</div>
           </div>
 
           <div className="stat-item anim" style={{ "--d": "0.74s" } as React.CSSProperties}>
             <div className="stat-val-group">
               <span className="stat-icon">#</span>
-              <span className="stat-val" data-target="2.4" data-decimals="1">0.0</span>
+              <span className="stat-val" data-target="2.5" data-decimals="1">0.0</span>
               <span className="stat-suffix">M</span>
             </div>
-            <div className="stat-label">Context Windows</div>
+            <div className="stat-label">Tokens Analyzed</div>
           </div>
         </footer>
       </div>
