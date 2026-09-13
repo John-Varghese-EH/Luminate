@@ -215,9 +215,10 @@ export default function LandingPage() {
             <div className="stat-label">Tokens Analyzed</div>
           </div>
         </footer>
+      </div>
 
-        {/* NEW SCROLLABLE CONTENT */}
-        <div className="w-full relative z-10 bg-black/40 backdrop-blur-[20px] border-t border-white/10 mt-16 pb-24">
+      {/* NEW SCROLLABLE CONTENT */}
+      <div className="w-full relative z-10 bg-black/40 backdrop-blur-[20px] border-t border-white/10 mt-16 pb-24">
           <div className="max-w-6xl mx-auto px-8 pt-24">
             
             {/* Features Section */}
@@ -276,7 +277,6 @@ export default function LandingPage() {
             </div>
 
           </div>
-        </div>
       </div>
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />

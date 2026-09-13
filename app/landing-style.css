@@ -61,6 +61,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px);
   min-height: 100vh;
   width: 100%;
 }
