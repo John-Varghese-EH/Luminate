@@ -1,0 +1,102 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // GLOBAL FUNCTIONS & SECURITY UTILITIES
+    // =========================================================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user is accessing their own data
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if the user email is verified
+    function isEmailVerified() {
+      return isAuthenticated() && request.auth.token.email_verified == true;
+    }
+
+    // Role-based Access Control (Requires a custom claim or user document field)
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    // Schema Validation Helpers
+    function isValidString(text, minLen, maxLen) {
+      return text is string && text.size() >= minLen && text.size() <= maxLen;
+    }
+    
+    function isNow(timestamp) {
+      // Allow 5 seconds tolerance for latency
+      return timestamp == request.time;
+    }
+
+    // Prevent sweeping operations (Limit list queries to reasonable bounds)
+    function isBoundedQuery() {
+      return request.query.limit <= 100;
+    }
+
+    // =========================================================================
+    // COLLECTION RULES
+    // =========================================================================
+
+    // 1. USERS COLLECTION
+    // Users can read/write their own profile data, but cannot elevate their own role
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+                    && request.resource.data.keys().hasOnly(['email', 'displayName', 'createdAt', 'role'])
+                    && request.resource.data.role == 'student' // Cannot create admin
+                    && isNow(request.resource.data.createdAt);
+      allow update: if isOwner(userId)
+                    && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'createdAt', 'email']); // Cannot modify role or creation date
+      allow delete: if isAdmin();
+    }
+
+    // 2. FLASHCARDS (Spaced Repetition Data)
+    // Only the owner can access their flashcard decks to ensure study privacy
+    match /flashcards/{cardId} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId) && isBoundedQuery();
+      allow create: if isAuthenticated() 
+                    && isOwner(request.resource.data.userId)
+                    && isValidString(request.resource.data.front, 1, 500)
+                    && isValidString(request.resource.data.back, 1, 1000)
+                    && request.resource.data.difficulty in ['easy', 'good', 'hard', 'again'];
+      allow update: if isAuthenticated() 
+                    && isOwner(resource.data.userId) 
+                    && isOwner(request.resource.data.userId); // Cannot transfer ownership
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // 3. SOCRATIC TUTOR SESSIONS
+    // Private chat logs between user and AI
+    match /chatSessions/{sessionId} {
+      allow read, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isAuthenticated() && isOwner(resource.data.userId)
+                    && request.resource.data.messages.size() <= 1000; // Cap message array size
+    }
+
+    // 4. KNOWLEDGE GRAPH NODES
+    match /knowledgeGraph/{nodeId} {
+      // Global read for standardized curriculum nodes
+      allow read: if isAuthenticated();
+      // Only admins can modify the global knowledge graph
+      allow write: if isAdmin();
+    }
+    
+    // =========================================================================
+    // DEFAULT DENY
+    // =========================================================================
+    // Catch-all to deny any access that isn't explicitly permitted above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

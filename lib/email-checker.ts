@@ -23,7 +23,7 @@ export async function checkEmailValidity(email: string): Promise<EmailValidation
       };
     }
 
-    const [localPart] = email.toLowerCase().split('@');
+    const [localPart, domain] = email.toLowerCase().split('@');
 
     // 2. Check for role-based/test emails
     if (ROLE_BASED_PREFIXES.includes(localPart)) {
@@ -33,7 +33,24 @@ export async function checkEmailValidity(email: string): Promise<EmailValidation
       };
     }
 
-    // 3. Check for disposable/temp emails by directly contacting debounce API
+    // 3. Check if the domain actually exists and has mail servers (MX records)
+    const domainCheck = await fetch('/api/check-domain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domain })
+    });
+
+    if (domainCheck.ok) {
+      const domainData = await domainCheck.json();
+      if (!domainData.valid) {
+        return {
+          isValid: false,
+          error: "This email domain doesn't appear to exist or cannot receive emails. Please check for typos."
+        };
+      }
+    }
+
+    // 4. Check for disposable/temp emails by directly contacting debounce API
     // Using a direct fetch to a free service prevents 401 Unauthorized console errors
     const response = await fetch(`https://disposable.debounce.io/?email=${encodeURIComponent(email)}`);
     
