@@ -71,7 +71,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-8 pb-20 relative z-10">
+      <main id="main-content" className="max-w-6xl mx-auto px-4 sm:px-8 py-8 pb-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-4">

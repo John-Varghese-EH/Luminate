@@ -156,7 +156,7 @@ export default function LandingPage() {
           </nav>
         </div>
 
-        <main className="hero">
+        <main id="main-content" className="hero">
           <div className="hero-content">
             <div className="trust-row anim" style={{ "--d": "0.05s" } as React.CSSProperties}>
               <div className="avatar-ring avatar-1"><div className="avatar-inner"><i className="fa-brands fa-microsoft"></i></div></div>
