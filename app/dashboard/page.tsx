@@ -116,9 +116,36 @@ export default function Dashboard() {
                     <i className="fa-solid fa-bolt text-2xl text-white/50"></i>
                   </div>
                   <h3 className="text-xl font-semibold mb-2">No Active Study Session</h3>
-                  <p className="text-white/40 max-w-xs mx-auto text-sm">
+                  <p className="text-white/40 max-w-xs mx-auto text-sm mb-6">
                     Upload a PDF lecture to generate flashcards and a quiz to test your knowledge.
                   </p>
+                  <button 
+                    onClick={() => {
+                      setFlashcards([
+                        { question: "What is a Qubit?", answer: "The fundamental unit of quantum information, capable of existing in multiple states simultaneously due to superposition." },
+                        { question: "What is Quantum Entanglement?", answer: "A physical phenomenon where particles become interconnected such that the quantum state of one cannot be described independently of the state of the others." },
+                        { question: "Why are Quantum Computers faster for certain tasks?", answer: "They use quantum algorithms (like Shor's or Grover's) that leverage superposition and interference to evaluate many possibilities simultaneously." }
+                      ]);
+                      setQuizQuestions([
+                        {
+                          question: "Which quantum phenomenon allows a qubit to represent both 0 and 1 at the same time?",
+                          options: ["Entanglement", "Superposition", "Decoherence", "Interference"],
+                          correctAnswer: "Superposition",
+                          explanation: "Superposition is the principle that allows a quantum system to exist in multiple states simultaneously until it is measured."
+                        },
+                        {
+                          question: "What happens when a quantum state collapses?",
+                          options: ["It becomes entangled", "It loses energy", "It resolves to a single classical state upon measurement", "It duplicates itself"],
+                          correctAnswer: "It resolves to a single classical state upon measurement",
+                          explanation: "Measurement forces a superposition state to collapse into one definite classical state (0 or 1)."
+                        }
+                      ]);
+                      setActiveTab("flashcards");
+                    }}
+                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-[var(--radius-lg)] text-sm font-medium transition-colors border border-white/10"
+                  >
+                    Load Demo Topic (Quantum Computing)
+                  </button>
                 </div>
               </div>
             ) : (
