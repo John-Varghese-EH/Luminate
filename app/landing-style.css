@@ -429,6 +429,135 @@ body {
   margin-top: 4px;
 }
 
+/* ============================================= */
+/* 4) Features & CTA Sections (Below the fold)   */
+/* ============================================= */
+
+.features-section {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 4rem;
+  padding-bottom: 6rem;
+}
+
+.features-inner {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 6rem 2rem 0;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 5rem;
+}
+
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(24, 24, 27, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 2rem;
+  transition: all 0.35s ease;
+  cursor: default;
+}
+
+.feature-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+}
+
+.feature-glow {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  transition: all 0.35s ease;
+}
+
+.feature-card:hover .feature-glow {
+  opacity: 2;
+  width: 200px;
+  height: 200px;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.35s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1);
+}
+
+.feature-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.feature-desc {
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.cta-banner {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #18181b 0%, #000 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 36px;
+  padding: 4rem 2rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.cta-glow-left {
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 60%;
+  height: 150%;
+  background: rgba(59, 130, 246, 0.08);
+  filter: blur(120px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cta-glow-right {
+  position: absolute;
+  bottom: -50%;
+  right: -10%;
+  width: 60%;
+  height: 150%;
+  background: rgba(139, 92, 246, 0.08);
+  filter: blur(120px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
 /* Animations */
 @keyframes slideDown {
   from {
@@ -632,6 +761,16 @@ p.subhead.anim {
   .stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .cta-banner {
+    padding: 3rem 1.5rem;
+    border-radius: 24px;
   }
 }
 
