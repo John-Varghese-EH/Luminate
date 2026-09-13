@@ -48,11 +48,11 @@ export default function FileUpload({ onFileSelect, isLoading }: FileUploadProps)
 
   return (
     <div
-      className={`border-2 border-dashed rounded-[var(--radius-xl)] p-8 text-center transition-all duration-300 relative cursor-pointer
+      className={`relative group overflow-hidden border-2 border-dashed rounded-[32px] p-8 text-center transition-all duration-500 cursor-pointer shadow-2xl
         ${isDragging 
-          ? "border-[#3b82f6] bg-[#3b82f6]/10" 
-          : "border-white/10 bg-black/50 hover:bg-white/5 hover:border-white/20"}
-        ${isLoading ? "opacity-50 pointer-events-none" : ""}
+          ? "border-[#3b82f6] bg-[#3b82f6]/10 shadow-[0_0_60px_-15px_rgba(59,130,246,0.5)] scale-[1.02]" 
+          : "border-white/10 bg-[#09090b] hover:bg-[#18181b] hover:border-[#3b82f6]/50 hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.3)]"}
+        ${isLoading ? "opacity-70 pointer-events-none border-[#3b82f6]/30 bg-[#1e3a8a]/10" : ""}
       `}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
@@ -62,23 +62,37 @@ export default function FileUpload({ onFileSelect, isLoading }: FileUploadProps)
       <input 
         type="file" 
         accept="application/pdf" 
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
         onChange={handleChange}
         disabled={isLoading}
       />
       
+      {/* Shimmer gradient overlay */}
+      {!isLoading && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite] pointer-events-none z-10"></div>
+      )}
+      
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-4 animate-pulse-subtle">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-[#3b82f6] rounded-full animate-spin mb-4"></div>
-          <p className="text-sm font-medium text-white/70">Analyzing Lecture...</p>
+        <div className="flex flex-col items-center justify-center py-6 relative z-10 animate-fade-in">
+          <div className="relative w-16 h-16 mb-6">
+            <div className="absolute inset-0 border-4 border-white/10 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-[#3b82f6] rounded-full border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-[#60a5fa] rounded-full border-b-transparent animate-[spin_1.5s_reverse_infinite] opacity-50"></div>
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2 animate-pulse">Extracting Knowledge...</h3>
+          <p className="text-sm font-medium text-[#3b82f6]">Processing your PDF with Gemini 2.5 Flash</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center py-2">
-          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-110">
-            <i className={`fa-solid fa-cloud-arrow-up text-3xl ${isDragging ? "text-[#3b82f6]" : "text-white/40"} transition-colors`}></i>
+        <div className="flex flex-col items-center py-6 relative z-10">
+          <div className={`w-20 h-20 rounded-[24px] flex items-center justify-center mb-6 transition-all duration-500
+            ${isDragging ? "bg-[#3b82f6] shadow-[0_10px_30px_rgba(59,130,246,0.4)] scale-110" : "bg-[#18181b] shadow-inner group-hover:bg-[#27272a] group-hover:scale-105"}
+          `}>
+            <i className={`fa-solid fa-cloud-arrow-up text-3xl transition-colors duration-500
+              ${isDragging ? "text-white" : "text-[#3b82f6] group-hover:text-[#60a5fa]"}
+            `}></i>
           </div>
-          <h3 className="text-lg font-semibold text-white mb-1">Upload PDF Lecture</h3>
-          <p className="text-sm text-white/50">Drag and drop or click to browse</p>
+          <h3 className="text-[22px] font-bold text-white mb-2 tracking-tight">Upload Lecture PDF</h3>
+          <p className="text-[15px] text-white/50 max-w-[200px]">Drag and drop your file here, or click to browse.</p>
         </div>
       )}
     </div>

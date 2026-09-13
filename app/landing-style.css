@@ -33,14 +33,12 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  overflow: hidden;
-  height: 100vh;
-  height: 100dvh;
+  overflow-x: hidden;
 }
 
 /* Background video */
 .bg {
-  position: absolute;
+  position: fixed;
   inset: 0;
   overflow: hidden;
   background: var(--bg);
@@ -63,10 +61,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(16px, 2.4vh, 28px) clamp(14px, 3vw, 32px);
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
+  min-height: 100vh;
+  width: 100%;
 }
 
 /* 1) Header */
