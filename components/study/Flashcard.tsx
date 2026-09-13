@@ -9,6 +9,13 @@ interface FlashcardProps {
 
 export default function Flashcard({ question, answer }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [rating, setRating] = useState<"hard" | "good" | "easy" | null>(null);
+
+  const handleRating = (e: React.MouseEvent, type: "hard" | "good" | "easy") => {
+    e.stopPropagation();
+    setRating(type);
+    setIsFlipped(false);
+  };
 
   return (
     <div
@@ -35,8 +42,22 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
             <span className="w-1.5 h-1.5 rounded-full bg-white/40"></span>
             <span className="w-1.5 h-1.5 rounded-full bg-white/40"></span>
           </div>
+
+          {rating && (
+            <div className="absolute top-6 left-6 animate-fade-in">
+              <div className={`px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg ${
+                rating === 'hard' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+                rating === 'good' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
+                'bg-green-500/10 border-green-500/30 text-green-400'
+              }`}>
+                {rating === 'hard' && <><i className="fa-solid fa-rotate-left"></i> Review Again</>}
+                {rating === 'good' && <><i className="fa-solid fa-check"></i> Getting There</>}
+                {rating === 'easy' && <><i className="fa-solid fa-star"></i> Mastered</>}
+              </div>
+            </div>
+          )}
           
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center mt-4">
             <p className="text-xl font-medium text-white/90 text-center leading-relaxed">{question}</p>
           </div>
           
@@ -60,19 +81,19 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
 
           {/* Spaced Repetition Action Bar */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] flex items-center justify-between gap-3 p-1.5 bg-[#09090b]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]" onClick={(e) => e.stopPropagation()}>
-            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-red-400 hover:text-white hover:bg-red-500/20 hover:shadow-[inset_0_0_12px_rgba(239,68,68,0.3)] transition-all active:scale-95 group/btn">
+            <button onClick={(e) => handleRating(e, "hard")} className={`flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-red-500/20 hover:shadow-[inset_0_0_12px_rgba(239,68,68,0.3)] transition-all active:scale-95 group/btn ${rating === 'hard' ? 'text-white bg-red-500/20' : 'text-red-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-rotate-left text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Hard
               </span>
             </button>
             <div className="w-px h-6 bg-white/10"></div>
-            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-blue-400 hover:text-white hover:bg-blue-500/20 hover:shadow-[inset_0_0_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 group/btn">
+            <button onClick={(e) => handleRating(e, "good")} className={`flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-blue-500/20 hover:shadow-[inset_0_0_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 group/btn ${rating === 'good' ? 'text-white bg-blue-500/20' : 'text-blue-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-check text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Good
               </span>
             </button>
             <div className="w-px h-6 bg-white/10"></div>
-            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-green-400 hover:text-white hover:bg-green-500/20 hover:shadow-[inset_0_0_12px_rgba(34,197,94,0.3)] transition-all active:scale-95 group/btn">
+            <button onClick={(e) => handleRating(e, "easy")} className={`flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-green-500/20 hover:shadow-[inset_0_0_12px_rgba(34,197,94,0.3)] transition-all active:scale-95 group/btn ${rating === 'easy' ? 'text-white bg-green-500/20' : 'text-green-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-forward-step text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Easy
               </span>

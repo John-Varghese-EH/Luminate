@@ -6,30 +6,36 @@ import pdf from "pdf-parse-fork";
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    const file = formData.get("file") as File | null;
+    const rawText = formData.get("text") as string | null;
+
+    let extractedText = "";
+
+    if (rawText && rawText.trim().length > 0) {
+      extractedText = rawText.trim();
+    } else if (file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      try {
+        const pdfData = await pdf(buffer);
+        extractedText = pdfData.text.trim();
+      } catch (err) {
+        console.error("DEVELOPMENT ERROR [PDF Parser]:", err);
+        return NextResponse.json({ error: "Failed to parse PDF document." }, { status: 500 });
+      }
+    } else {
+      return NextResponse.json({ error: "No file or text provided." }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    let pdfData;
-    try {
-      pdfData = await pdf(buffer);
-    } catch {
-      return NextResponse.json({ error: "Failed to parse PDF" }, { status: 500 });
-    }
-
-    const extractedText = pdfData.text.trim();
     if (!extractedText || extractedText.length < 50) {
-      return NextResponse.json({ error: "No readable text found in this PDF. Please ensure it is not a scanned image." }, { status: 400 });
+      return NextResponse.json({ error: "Not enough readable text found. Please provide more content." }, { status: 400 });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+      console.error("DEVELOPMENT ERROR: GEMINI_API_KEY is not set in the environment.");
+      return NextResponse.json({ error: "API key not configured." }, { status: 500 });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);

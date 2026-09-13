@@ -60,6 +60,31 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     });
   };
 
+  const getPasswordStrength = (pass: string) => {
+    let score = 0;
+    if (!pass) return { segments: 0, label: "", color: "bg-transparent", textClass: "" };
+    
+    if (pass.length >= 6) score += 1;
+    if (pass.length >= 10) score += 1;
+    if (/[A-Z]/.test(pass)) score += 1;
+    if (/[a-z]/.test(pass)) score += 1;
+    if (/[0-9]/.test(pass)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pass)) score += 1;
+    
+    let segments = 0;
+    if (score <= 2) segments = 1;
+    else if (score <= 3) segments = 2;
+    else if (score <= 4) segments = 3;
+    else segments = 4;
+    
+    if (segments === 1) return { segments, label: "Weak", color: "bg-red-500", textClass: "text-red-500" };
+    if (segments === 2) return { segments, label: "Fair", color: "bg-yellow-500", textClass: "text-yellow-500" };
+    if (segments === 3) return { segments, label: "Good", color: "bg-blue-400", textClass: "text-blue-400" };
+    return { segments, label: "Strong", color: "bg-emerald-400", textClass: "text-emerald-400" };
+  };
+
+  const strength = getPasswordStrength(password);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl animate-fade-in p-4" onClick={onClose}>
       <div 
@@ -151,6 +176,26 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 required
               />
             </div>
+            
+            {/* Password Strength Meter (Only on Sign Up) */}
+            {isSignUp && password.length > 0 && (
+              <div className="flex flex-col gap-1.5 mt-1 animate-fade-in px-1">
+                <div className="flex gap-1.5 h-1 w-full">
+                  {[...Array(4)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`flex-1 rounded-full transition-all duration-500 ${
+                        i < strength.segments ? strength.color : 'bg-white/10'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between items-center text-[11px] uppercase tracking-widest font-semibold mt-0.5">
+                  <span className="text-white/30">Security Level</span>
+                  <span className={`${strength.textClass} transition-colors duration-300`}>{strength.label}</span>
+                </div>
+              </div>
+            )}
 
             <button 
               type="submit"

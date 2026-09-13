@@ -19,9 +19,10 @@ export default function SocraticTutor() {
     {
       id: "1",
       role: "ai",
-      content: "I noticed you've been reviewing Quantum Superposition. Are you clear on why it allows quantum computers to process multiple possibilities simultaneously?",
+      content: "Hi! I'm Luminate AI. I noticed you've been reviewing some material. How can I guide you today? Ask me any questions, but I won't just give you the answer—we'll figure it out together!",
     }
   ]);
+  const [error, setError] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,29 +30,48 @@ export default function SocraticTutor() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping, isOpen]);
+  }, [messages, isTyping, isOpen, error]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
     const newUserMsg: Message = { id: Date.now().toString(), role: "user", content: inputMessage };
-    setMessages((prev) => [...prev, newUserMsg]);
+    const updatedMessages = [...messages, newUserMsg];
+    
+    setMessages(updatedMessages);
     setInputMessage("");
     setIsTyping(true);
+    setError(null);
 
-    // Simulate Socratic AI response
-    setTimeout(() => {
-      setIsTyping(false);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: updatedMessages }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to get AI response");
+      }
+
       setMessages((prev) => [
         ...prev,
         {
           id: (Date.now() + 1).toString(),
           role: "ai",
-          content: "That's a good start. But think about classical bits—they must be in one state at a time (0 or 1). If a qubit can be in a superposition of both, what happens when you have two qubits entangled together? How many states can they represent at once?",
+          content: data.response,
         }
       ]);
-    }, 1500);
+    } catch (err: unknown) {
+      console.error("DEVELOPMENT ERROR [Socratic Tutor Component]:", err);
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(msg);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   return (
@@ -135,6 +155,16 @@ export default function SocraticTutor() {
               </div>
             </div>
           )}
+          {error && (
+            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm max-w-[85%] animate-fade-in shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <i className="fa-solid fa-triangle-exclamation"></i>
+                <span className="font-bold">Error connecting to AI</span>
+              </div>
+              {error}
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
 
