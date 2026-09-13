@@ -25,7 +25,7 @@ export default function Quiz({ questions }: QuizProps) {
   if (!questions || questions.length === 0) return null;
 
   const handleSelect = (opt: string) => {
-    if (showFeedback) return; // Prevent changing answer after selection
+    if (showFeedback) return;
     setSelectedOption(opt);
     setShowFeedback(true);
     if (opt === currentQ.correctAnswer) {
@@ -42,13 +42,13 @@ export default function Quiz({ questions }: QuizProps) {
   if (isFinished) {
     const percentage = Math.round((score / questions.length) * 100);
     return (
-      <div className="bg-[#1e1e22] border border-white/10 rounded-[var(--radius-3xl)] p-10 text-center animate-fade-in shadow-2xl relative overflow-hidden">
+      <div className="bg-white dark:bg-[#1e1e22] border border-gray-200 dark:border-white/10 rounded-3xl p-8 sm:p-10 text-center animate-fade-in shadow-lg dark:shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-50"></div>
-        <div className="w-20 h-20 bg-[#3b82f6]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div className="w-20 h-20 bg-blue-50 dark:bg-[#3b82f6]/10 rounded-full flex items-center justify-center mx-auto mb-6">
           <i className="fa-solid fa-trophy text-3xl text-[#3b82f6]"></i>
         </div>
-        <h2 className="text-2xl font-bold mb-2 text-white">Quiz Completed!</h2>
-        <p className="text-white/50 mb-8">You scored {score} out of {questions.length} ({percentage}%)</p>
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Quiz Completed!</h2>
+        <p className="text-gray-500 dark:text-white/50 mb-8">You scored {score} out of {questions.length} ({percentage}%)</p>
         
         <button 
           onClick={() => {
@@ -57,7 +57,7 @@ export default function Quiz({ questions }: QuizProps) {
             setSelectedOption(null);
             setShowFeedback(false);
           }}
-          className="bg-white text-black font-semibold rounded-xl px-8 py-3 hover:bg-gray-100 transition-colors"
+          className="bg-[#3b82f6] text-white font-semibold rounded-xl px-8 py-3 hover:bg-[#60a5fa] transition-colors shadow-lg shadow-blue-500/20 active:scale-95"
         >
           Retake Quiz
         </button>
@@ -66,48 +66,48 @@ export default function Quiz({ questions }: QuizProps) {
   }
 
   return (
-    <div className="bg-gradient-to-b from-[#18181b] to-[#09090b] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] relative animate-fade-in overflow-hidden">
+    <div className="bg-white dark:bg-gradient-to-b dark:from-[#18181b] dark:to-[#09090b] border border-gray-200 dark:border-white/10 rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg dark:shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] relative animate-fade-in overflow-hidden">
       {/* Subtle background glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6] blur-[120px] opacity-10 rounded-full pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6] blur-[120px] opacity-5 dark:opacity-10 rounded-full pointer-events-none"></div>
 
-      <div className="flex justify-between items-center mb-6 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#3b82f6]/10 flex items-center justify-center border border-[#3b82f6]/20">
+      <div className="flex justify-between items-center mb-4 sm:mb-6 relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-[#3b82f6]/10 flex items-center justify-center border border-blue-200 dark:border-[#3b82f6]/20">
             <span className="text-[#3b82f6] text-xs font-bold">{currentIndex + 1}</span>
           </div>
-          <span className="text-[12px] uppercase tracking-[0.15em] font-bold text-white/50">of {questions.length}</span>
+          <span className="text-[12px] uppercase tracking-[0.15em] font-bold text-gray-400 dark:text-white/50">of {questions.length}</span>
         </div>
-        <div className="flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
+        <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/5 px-3 sm:px-4 py-1.5 rounded-full border border-gray-200 dark:border-white/10">
           <i className="fa-solid fa-star text-[#f59e0b] text-xs"></i>
-          <span className="text-sm font-bold text-white">{score}</span>
+          <span className="text-sm font-bold text-gray-900 dark:text-white">{score}</span>
         </div>
       </div>
 
-      <div className="w-full h-1 bg-white/5 rounded-full mb-8 overflow-hidden relative z-10">
+      <div className="w-full h-1 bg-gray-100 dark:bg-white/5 rounded-full mb-6 sm:mb-8 overflow-hidden relative z-10">
         <div 
           className="h-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] rounded-full transition-all duration-500 ease-out"
           style={{ width: `${((currentIndex) / questions.length) * 100}%` }}
         ></div>
       </div>
 
-      <h3 className="text-[22px] font-medium text-white mb-10 leading-relaxed tracking-tight relative z-10">
+      <h3 className="text-lg sm:text-[22px] font-medium text-gray-900 dark:text-white mb-6 sm:mb-10 leading-relaxed tracking-tight relative z-10">
         {currentQ.question}
       </h3>
 
-      <div className="flex flex-col gap-4 relative z-10">
+      <div className="flex flex-col gap-3 sm:gap-4 relative z-10">
         {currentQ.options.map((opt, i) => {
           const isSelected = selectedOption === opt;
           const isCorrect = opt === currentQ.correctAnswer;
           
-          let stateClass = "border-white/10 bg-[#18181b] hover:bg-[#27272a] hover:border-[#3b82f6]/50 text-white/80 hover:text-white shadow-sm hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.2)] hover:scale-[1.01]";
+          let stateClass = "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#18181b] hover:bg-blue-50 dark:hover:bg-[#27272a] hover:border-blue-300 dark:hover:border-[#3b82f6]/50 text-gray-800 dark:text-white/80 hover:text-gray-900 dark:hover:text-white shadow-sm hover:shadow-md dark:hover:shadow-[0_0_20px_-5px_rgba(59,130,246,0.2)] hover:scale-[1.01]";
           
           if (showFeedback) {
             if (isCorrect) {
-              stateClass = "border-[#10b981]/50 bg-gradient-to-r from-[#10b981]/20 to-[#10b981]/5 text-white shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)] scale-[1.02]";
+              stateClass = "border-emerald-400 dark:border-[#10b981]/50 bg-emerald-50 dark:bg-gradient-to-r dark:from-[#10b981]/20 dark:to-[#10b981]/5 text-emerald-800 dark:text-white shadow-md dark:shadow-[0_0_30px_-5px_rgba(16,185,129,0.3)] scale-[1.02]";
             } else if (isSelected && !isCorrect) {
-              stateClass = "border-[#ef4444]/50 bg-gradient-to-r from-[#ef4444]/20 to-[#ef4444]/5 text-white shadow-[0_0_30px_-5px_rgba(239,68,68,0.2)]";
+              stateClass = "border-red-400 dark:border-[#ef4444]/50 bg-red-50 dark:bg-gradient-to-r dark:from-[#ef4444]/20 dark:to-[#ef4444]/5 text-red-800 dark:text-white shadow-md dark:shadow-[0_0_30px_-5px_rgba(239,68,68,0.2)]";
             } else {
-              stateClass = "border-white/5 bg-[#09090b] text-white/30 opacity-40 scale-[0.98]";
+              stateClass = "border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-[#09090b] text-gray-400 dark:text-white/30 opacity-40 scale-[0.98]";
             }
           }
 
@@ -116,41 +116,41 @@ export default function Quiz({ questions }: QuizProps) {
               key={i}
               onClick={() => handleSelect(opt)}
               disabled={showFeedback}
-              className={`w-full text-left p-5 rounded-[20px] border transition-all duration-500 ease-out relative overflow-hidden flex items-center gap-4 group ${stateClass}`}
+              className={`w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-500 ease-out relative overflow-hidden flex items-center gap-3 sm:gap-4 group ${stateClass}`}
             >
               <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors
-                ${showFeedback && isCorrect ? "border-[#10b981] bg-[#10b981]" : 
-                  showFeedback && isSelected && !isCorrect ? "border-[#ef4444] bg-[#ef4444]" : 
-                  "border-white/20 group-hover:border-[#3b82f6]"}
+                ${showFeedback && isCorrect ? "border-emerald-500 bg-emerald-500" : 
+                  showFeedback && isSelected && !isCorrect ? "border-red-500 bg-red-500" : 
+                  "border-gray-300 dark:border-white/20 group-hover:border-[#3b82f6]"}
               `}>
-                {showFeedback && isCorrect && <i className="fa-solid fa-check text-black text-[10px]"></i>}
-                {showFeedback && isSelected && !isCorrect && <i className="fa-solid fa-xmark text-black text-[10px]"></i>}
+                {showFeedback && isCorrect && <i className="fa-solid fa-check text-white text-[10px]"></i>}
+                {showFeedback && isSelected && !isCorrect && <i className="fa-solid fa-xmark text-white text-[10px]"></i>}
               </div>
-              <span className="font-medium text-[16px] flex-1">{opt}</span>
+              <span className="font-medium text-[14px] sm:text-[16px] flex-1">{opt}</span>
             </button>
           );
         })}
       </div>
 
       {showFeedback && (
-        <div className="mt-8 p-6 rounded-[24px] bg-[#09090b] border border-white/10 animate-slide-down relative overflow-hidden z-10 shadow-inner">
+        <div className="mt-6 sm:mt-8 p-4 sm:p-6 rounded-2xl bg-gray-50 dark:bg-[#09090b] border border-gray-200 dark:border-white/10 animate-slide-down relative overflow-hidden z-10">
           {/* Status glow */}
-          <div className={`absolute top-0 left-0 w-1 h-full ${selectedOption === currentQ.correctAnswer ? "bg-[#10b981]" : "bg-[#ef4444]"}`}></div>
+          <div className={`absolute top-0 left-0 w-1 h-full ${selectedOption === currentQ.correctAnswer ? "bg-emerald-500" : "bg-red-500"}`}></div>
           
           <div className="pl-3">
-            <h4 className={`text-lg font-bold mb-2 flex items-center gap-2 ${selectedOption === currentQ.correctAnswer ? "text-[#10b981]" : "text-[#ef4444]"}`}>
+            <h4 className={`text-base sm:text-lg font-bold mb-2 flex items-center gap-2 ${selectedOption === currentQ.correctAnswer ? "text-emerald-600 dark:text-[#10b981]" : "text-red-600 dark:text-[#ef4444]"}`}>
               {selectedOption === currentQ.correctAnswer ? (
                 <><i className="fa-solid fa-check-circle"></i> Brilliant!</>
               ) : (
                 <><i className="fa-solid fa-xmark-circle"></i> Not quite.</>
               )}
             </h4>
-            <p className="text-white/70 text-[15px] leading-relaxed mb-6">{currentQ.explanation}</p>
+            <p className="text-gray-600 dark:text-white/70 text-sm sm:text-[15px] leading-relaxed mb-4 sm:mb-6">{currentQ.explanation}</p>
             
             <div className="flex justify-end">
               <button 
                 onClick={nextQuestion}
-                className="bg-white text-black font-bold rounded-xl px-7 py-3.5 hover:bg-gray-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                className="bg-[#3b82f6] text-white font-bold rounded-xl px-5 sm:px-7 py-2.5 sm:py-3.5 hover:bg-[#60a5fa] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 text-sm sm:text-base"
               >
                 Next Question
                 <i className="fa-solid fa-arrow-right text-sm"></i>

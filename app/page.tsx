@@ -219,6 +219,7 @@ export default function LandingPage() {
   }, [lastScrollY]);
 
   return (
+    <div className="dark">
     <div className="w-full bg-black text-white font-sans overflow-x-hidden selection:bg-white/20 selection:text-white relative">
       
       <style dangerouslySetInnerHTML={{__html: `
@@ -687,6 +688,7 @@ export default function LandingPage() {
       </div>
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+    </div>
     </div>
   );
 }

@@ -12,6 +12,8 @@ import SocraticTutor from "@/components/study/SocraticTutor";
 import KnowledgeGraph from "@/components/study/KnowledgeGraph";
 import SettingsModal from "@/components/ui/SettingsModal";
 import PodcastScript, { PodcastTurn } from "@/components/study/PodcastScript";
+import EssayFeedback from "@/components/study/EssayFeedback";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Image from "next/image";
 
 interface FlashcardData {
@@ -22,37 +24,64 @@ interface FlashcardData {
 const PomodoroTimer = ({ onToggleFocus }: { onToggleFocus: (isFocus: boolean) => void }) => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
-  
+  const [isPaused, setIsPaused] = useState(false);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isActive && timeLeft > 0) {
+    if (isActive && !isPaused && timeLeft > 0) {
       interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
     } else if (timeLeft === 0) {
       setIsActive(false);
+      setIsPaused(false);
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
+  }, [isActive, isPaused, timeLeft]);
 
   useEffect(() => {
-    onToggleFocus(isActive);
-  }, [isActive, onToggleFocus]);
+    onToggleFocus(isActive && !isPaused);
+  }, [isActive, isPaused, onToggleFocus]);
+
+  const toggleTimer = () => {
+    if (isActive) {
+      setIsPaused(!isPaused);
+    } else {
+      setIsActive(true);
+      setIsPaused(false);
+    }
+  };
+
+  const resetTimer = () => {
+    setIsActive(false);
+    setIsPaused(false);
+    setTimeLeft(25 * 60);
+  };
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  
+
   return (
-    <div className="bg-[#111113] border border-white/[0.06] rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
-      <div className={`absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/5 transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}></div>
-      <i className="fa-solid fa-stopwatch text-white/40 mb-3 text-xl group-hover:text-red-400 transition-colors"></i>
-      <div className="text-4xl font-display font-bold tracking-tight text-white mb-4">
+    <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group transition-colors">
+      <div className={`absolute inset-0 bg-gradient-to-br from-red-500/10 to-orange-500/5 transition-opacity duration-500 ${isActive && !isPaused ? 'opacity-100' : 'opacity-0'}`}></div>
+      <i className="fa-solid fa-stopwatch text-gray-400 dark:text-white/40 mb-3 text-xl group-hover:text-red-500 transition-colors"></i>
+      <div className="text-4xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-4">
         {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </div>
-      <button 
-        onClick={() => setIsActive(!isActive)}
-        className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all shadow-md ${isActive ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-red-500 text-white hover:bg-red-600 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]'}`}
-      >
-        {isActive ? 'Pause Focus' : 'Start Focus'}
-      </button>
+      <div className="flex gap-2 relative z-10">
+        <button 
+          onClick={toggleTimer}
+          className="px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition-transform active:scale-95 shadow-md shadow-red-500/20"
+        >
+          {isActive ? (isPaused ? 'Resume' : 'Pause') : 'Focus'}
+        </button>
+        {isActive && (
+          <button 
+            onClick={resetTimer}
+            className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-600 dark:text-white flex items-center justify-center transition-all active:scale-95"
+          >
+            <i className="fa-solid fa-rotate-right text-sm"></i>
+          </button>
+        )}
+      </div>
     </div>
   );
 };
@@ -67,7 +96,7 @@ export default function Dashboard() {
   const [podcastScript, setPodcastScript] = useState<PodcastTurn[]>([]);
   const [documentContext, setDocumentContext] = useState("");
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph" | "podcast">("flashcards");
+  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph" | "podcast" | "feedback">("flashcards");
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -82,8 +111,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0c] text-gray-900 dark:text-white font-sans transition-colors duration-300 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-gray-300 dark:border-white/20 border-t-gray-900 dark:border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -91,76 +120,82 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white animate-fade-in relative">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white animate-fade-in relative transition-colors duration-300 page-transition-enter overflow-x-hidden">
       {/* Background ambient light */}
-      <div className="fixed top-[-20%] left-[-10%] w-[40%] h-[40%] bg-[#3b82f6]/10 blur-[150px] rounded-full pointer-events-none"></div>
-      <div className="fixed bottom-[-20%] right-[-10%] w-[40%] h-[40%] bg-[#8b5cf6]/8 blur-[150px] rounded-full pointer-events-none"></div>
+      <div className="fixed top-0 left-0 w-[40%] h-[40%] bg-[#3b82f6]/10 blur-[150px] rounded-full pointer-events-none opacity-60"></div>
+      <div className="fixed bottom-0 right-0 w-[40%] h-[40%] bg-[#8b5cf6]/8 blur-[150px] rounded-full pointer-events-none opacity-60"></div>
       
-      <header className="sticky top-0 z-50 bg-[#09090b]/80 backdrop-blur-2xl border-b border-white/5 px-4 sm:px-8 py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <header className="sticky top-0 z-50 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-2xl border-b border-gray-200 dark:border-white/5 px-3 sm:px-8 py-3 sm:py-4 shadow-sm dark:shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-colors duration-300">
         <div className="flex justify-between items-center max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-[0_2px_12px_rgba(255,255,255,0.1)]">
-              <Image src="/assets/logo.webp" alt="Logo" width={26} height={26} className="object-contain" />
+          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-gray-200 dark:border-white/10 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm">
+              <Image src="/assets/logo.svg" alt="Logo" width={22} height={22} className="object-contain sm:w-[26px] sm:h-[26px]" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-white">Luminate</h1>
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 dark:text-white">Luminate</h1>
           </div>
           
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-[#18181b] px-3 py-1.5 rounded-full border border-white/5">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden md:flex items-center gap-2 bg-gray-100 dark:bg-[#18181b] px-3 py-1.5 rounded-full border border-gray-200 dark:border-white/5">
               <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></div>
-              <span className="text-[12px] font-medium text-white/60">{user.email}</span>
+              <span className="text-[12px] font-medium text-gray-600 dark:text-white/60">{user.email}</span>
             </div>
-            <button 
-              onClick={() => signOut(auth)}
-              className="text-sm font-medium text-white/50 hover:text-white transition-colors px-4 py-2 rounded-full hover:bg-white/5 active:scale-95"
-            >
-              Sign Out
-            </button>
+            <div className="flex items-center gap-1.5 sm:gap-4">
+              <ThemeToggle />
+              <button 
+                onClick={() => signOut(auth)}
+                className="text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-white/50 dark:hover:text-white transition-colors px-2.5 sm:px-4 py-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 active:scale-95"
+              >
+                <span className="hidden sm:inline">Sign Out</span>
+                <i className="fa-solid fa-right-from-bracket sm:hidden"></i>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-8 pb-20 relative z-10">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 pb-8 sm:pb-10 relative z-10">
         
         {/* Bento Grid Header (Hidden during Focus Mode) */}
-        <div className={`grid grid-cols-1 md:grid-cols-12 gap-4 mb-8 transition-all duration-700 ${isFocusMode ? 'opacity-10 pointer-events-none -translate-y-4' : 'opacity-100 translate-y-0'}`}>
-           <div className="md:col-span-6 lg:col-span-8 bg-[#111113] border border-white/[0.06] rounded-3xl p-8 relative overflow-hidden flex flex-col justify-end min-h-[160px] group">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>
+        <div className={`grid grid-cols-2 md:grid-cols-12 gap-3 sm:gap-4 mb-6 sm:mb-8 transition-all duration-700 ${isFocusMode ? 'opacity-10 pointer-events-none -translate-y-4' : 'opacity-100 translate-y-0'}`}>
+           <div className="col-span-2 md:col-span-6 lg:col-span-8 bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden flex flex-col justify-end min-h-[120px] sm:min-h-[160px] group transition-colors">
+              <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>
               
               <button 
                 onClick={() => setIsSettingsOpen(true)}
-                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all hover:rotate-90 z-10"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all hover:rotate-90 z-10"
                 title="API Settings (BYOK)"
               >
-                <i className="fa-solid fa-gear"></i>
+                <i className="fa-solid fa-gear text-sm"></i>
               </button>
 
-              <h2 className="text-2xl font-display font-bold text-white mb-1">Welcome back, {user.email?.split('@')[0]}</h2>
-              <p className="text-white/50 text-[13px] max-w-sm leading-relaxed">Ready to synthesize today's lectures? You have 3 recent documents waiting for review.</p>
+              <h2 className="text-lg sm:text-2xl font-display font-bold text-gray-900 dark:text-white mb-1">Welcome back, {user.email?.split('@')[0]}</h2>
+              <p className="text-gray-500 dark:text-white/50 text-[12px] sm:text-[13px] max-w-sm leading-relaxed">Ready to synthesize today&apos;s lectures? Upload a PDF to get started.</p>
            </div>
            
-           <div className="md:col-span-6 lg:col-span-4 grid grid-cols-2 gap-4">
+           <div className="col-span-1 md:col-span-3 lg:col-span-2">
              {/* Daily Goal Ring */}
-             <div className="bg-[#111113] border border-white/[0.06] rounded-3xl p-5 relative overflow-hidden flex flex-col items-center justify-center text-center">
-               <div className="relative w-20 h-20 mb-3 flex items-center justify-center">
+             <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden flex flex-col items-center justify-center text-center transition-colors h-full">
+               <div className="relative w-14 h-14 sm:w-20 sm:h-20 mb-2 sm:mb-3 flex items-center justify-center">
                  <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                   <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
+                   <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-gray-100 dark:text-white/5" />
                    <circle cx="50" cy="50" r="40" stroke="#3b82f6" strokeWidth="8" fill="none" strokeDasharray="251" strokeDashoffset="62.75" strokeLinecap="round" className="drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
                  </svg>
                  <div className="flex flex-col items-center justify-center">
-                   <span className="text-xl font-bold text-white">15</span>
-                   <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-[-2px]">/ 20</span>
+                   <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">15</span>
+                   <span className="text-[8px] sm:text-[9px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest mt-[-2px]">/ 20</span>
                  </div>
                </div>
-               <div className="text-white/50 text-[10px] uppercase tracking-widest font-bold">Daily Goal</div>
+               <div className="text-gray-500 dark:text-white/50 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">Daily Goal</div>
              </div>
+           </div>
 
+           <div className="col-span-1 md:col-span-3 lg:col-span-2">
              {/* Streak */}
-             <div className="bg-[#111113] border border-white/[0.06] rounded-3xl p-5 relative overflow-hidden flex flex-col items-center justify-center text-center group">
+             <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl sm:rounded-3xl p-4 sm:p-5 relative overflow-hidden flex flex-col items-center justify-center text-center group transition-colors h-full">
                <div className="absolute inset-0 bg-gradient-to-t from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-               <i className="fa-solid fa-fire text-orange-500 text-3xl mb-3 drop-shadow-[0_0_15px_rgba(249,115,22,0.4)] group-hover:scale-110 transition-transform duration-500"></i>
-               <div className="text-3xl font-display font-bold text-white mb-0.5">{metrics.streak}</div>
-               <div className="text-white/40 text-[10px] uppercase tracking-widest font-semibold">Day Streak</div>
+               <i className="fa-solid fa-fire text-orange-500 text-2xl sm:text-3xl mb-1.5 sm:mb-2 group-hover:scale-110 transition-transform duration-300"></i>
+               <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{metrics.streak}</div>
+               <div className="text-gray-500 dark:text-white/50 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold">Day Streak</div>
              </div>
            </div>
         </div>
@@ -168,9 +203,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 transition-all duration-700">
           {/* Sidebar */}
           <div className="lg:col-span-4 flex flex-col gap-6 transition-all duration-700">
-            <div className={`bg-[#111113] border border-white/[0.06] rounded-2xl p-6 relative overflow-hidden transition-all duration-700 ${isFocusMode ? 'opacity-30 pointer-events-none blur-[2px]' : 'opacity-100'}`}>
+            <div className={`bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl p-6 relative overflow-hidden transition-all duration-700 ${isFocusMode ? 'opacity-30 pointer-events-none blur-[2px]' : 'opacity-100'}`}>
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-30"></div>
-              <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
                 <i className="fa-solid fa-file-pdf text-[#3b82f6]"></i>
                 Upload Lecture
               </h2>
@@ -234,7 +269,8 @@ export default function Dashboard() {
               />
 
               {error && (
-                <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">
+                  <i className="fa-solid fa-circle-exclamation mr-1.5"></i>
                   {error}
                 </div>
               )}
@@ -247,25 +283,25 @@ export default function Dashboard() {
           {/* Main Content */}
           <div className="lg:col-span-8">
             {!flashcards.length && !quizQuestions.length ? (
-              <div className="bg-[#111113] border border-white/[0.06] rounded-2xl p-8 md:p-12 min-h-[400px] flex items-center justify-center text-center relative overflow-hidden">
+              <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-2xl p-6 sm:p-8 md:p-10 flex items-center justify-center text-center relative overflow-hidden transition-colors">
                 <div className="flex flex-col gap-8 animate-fade-in w-full h-full justify-center">
-                  <div className="text-center max-w-lg mx-auto mb-4">
-                    <div className="w-20 h-20 bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/[0.06] shadow-[0_0_40px_-10px_rgba(59,130,246,0.2)]">
-                      <i className="fa-solid fa-layer-group text-3xl text-white"></i>
-                    </div>
-                    <h3 className="text-2xl font-display font-bold mb-3 tracking-tight text-white">Ready to Synthesize?</h3>
-                    <p className="text-white/50 text-[15px] leading-relaxed">
-                      Upload a PDF lecture or paste your notes to generate intelligent flashcards, quizzes, and a dynamic knowledge graph.
-                    </p>
+                  <div className="text-center max-w-lg mx-auto mb-3">
+                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#3b82f6]/20 to-[#8b5cf6]/20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-gray-200 dark:border-white/[0.06] shadow-[0_0_40px_-10px_rgba(59,130,246,0.2)]">
+                       <i className="fa-solid fa-layer-group text-2xl sm:text-3xl text-gray-900 dark:text-white"></i>
+                     </div>
+                     <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 sm:mb-3 tracking-tight text-gray-900 dark:text-white">Ready to Synthesize?</h3>
+                     <p className="text-gray-500 dark:text-white/50 text-[13px] sm:text-[15px] leading-relaxed">
+                       Upload a PDF or paste notes to generate flashcards, quizzes, and a knowledge graph.
+                     </p>
                   </div>
 
                   <div className="w-full max-w-4xl mx-auto">
                     <div className="flex items-center justify-between mb-4 px-2">
-                      <h4 className="text-sm font-bold uppercase tracking-widest text-white/40">Recent Sessions</h4>
+                      <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 dark:text-white/40">Recent Sessions</h4>
                       <button className="text-[#3b82f6] text-xs font-semibold hover:text-[#60a5fa] transition-colors">View All</button>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                       {/* Mock Card 1 */}
                       <div 
                         onClick={() => {
@@ -287,39 +323,39 @@ export default function Dashboard() {
                           ]);
                           setActiveTab("flashcards");
                         }}
-                        className="bg-[#111113] border border-white/[0.06] p-5 rounded-3xl hover:bg-[#18181b] hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1"
+                        className="bg-gray-50 dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] p-4 sm:p-5 rounded-2xl sm:rounded-3xl hover:bg-white dark:hover:bg-[#18181b] hover:border-blue-300 dark:hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-lg dark:hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1"
                       >
-                        <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition-transform">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-500/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 text-purple-500 group-hover:scale-110 transition-transform">
                           <i className="fa-solid fa-atom"></i>
                         </div>
-                        <h5 className="font-bold text-white mb-1">Quantum Physics 101</h5>
-                        <div className="flex items-center gap-3 text-[11px] text-white/40 font-semibold tracking-wide">
+                        <h5 className="font-bold text-gray-900 dark:text-white mb-1 text-sm sm:text-base">Quantum Physics 101</h5>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-gray-500 dark:text-white/40 font-semibold tracking-wide">
                           <span><i className="fa-regular fa-clone mr-1"></i> 24 Cards</span>
-                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 80% Mastery</span>
+                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 80%</span>
                         </div>
                       </div>
 
                       {/* Mock Card 2 */}
-                      <div className="bg-[#111113] border border-white/[0.06] p-5 rounded-3xl hover:bg-[#18181b] hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1 opacity-60">
-                        <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center mb-4 text-orange-400 group-hover:scale-110 transition-transform">
+                      <div className="bg-gray-50 dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] p-4 sm:p-5 rounded-2xl sm:rounded-3xl hover:bg-white dark:hover:bg-[#18181b] hover:border-blue-300 dark:hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-lg dark:hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1 opacity-60">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-orange-100 dark:bg-orange-500/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 text-orange-500 group-hover:scale-110 transition-transform">
                           <i className="fa-solid fa-dna"></i>
                         </div>
-                        <h5 className="font-bold text-white mb-1">Cellular Biology</h5>
-                        <div className="flex items-center gap-3 text-[11px] text-white/40 font-semibold tracking-wide">
+                        <h5 className="font-bold text-gray-900 dark:text-white mb-1 text-sm sm:text-base">Cellular Biology</h5>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-gray-500 dark:text-white/40 font-semibold tracking-wide">
                           <span><i className="fa-regular fa-clone mr-1"></i> 112 Cards</span>
-                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 45% Mastery</span>
+                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 45%</span>
                         </div>
                       </div>
 
                       {/* Mock Card 3 */}
-                      <div className="bg-[#111113] border border-white/[0.06] p-5 rounded-3xl hover:bg-[#18181b] hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1 opacity-60">
-                        <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4 text-emerald-400 group-hover:scale-110 transition-transform">
+                      <div className="bg-gray-50 dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] p-4 sm:p-5 rounded-2xl sm:rounded-3xl hover:bg-white dark:hover:bg-[#18181b] hover:border-blue-300 dark:hover:border-[#3b82f6]/30 transition-all cursor-pointer group shadow-sm hover:shadow-lg dark:hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:-translate-y-1 opacity-60 hidden sm:block">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 text-emerald-500 group-hover:scale-110 transition-transform">
                           <i className="fa-solid fa-landmark"></i>
                         </div>
-                        <h5 className="font-bold text-white mb-1">Roman History</h5>
-                        <div className="flex items-center gap-3 text-[11px] text-white/40 font-semibold tracking-wide">
+                        <h5 className="font-bold text-gray-900 dark:text-white mb-1 text-sm sm:text-base">Roman History</h5>
+                        <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-[11px] text-gray-500 dark:text-white/40 font-semibold tracking-wide">
                           <span><i className="fa-regular fa-clone mr-1"></i> 48 Cards</span>
-                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 12% Mastery</span>
+                          <span><i className="fa-solid fa-check-double text-green-500/70 mr-1"></i> 12%</span>
                         </div>
                       </div>
                     </div>
@@ -328,35 +364,42 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="flex flex-col gap-6 animate-fade-in">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div className="flex bg-[#111113] border border-white/[0.06] p-1 rounded-xl">
+                <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                  <div className="flex gap-1 bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] p-1 rounded-xl transition-colors overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                     <button 
                       onClick={() => setActiveTab("flashcards")}
-                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'flashcards' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                      className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'flashcards' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
                     >
-                      <i className={`fa-solid fa-layer-group mr-1.5 ${activeTab === 'flashcards' ? 'text-white' : 'text-white/40'}`}></i>
+                      <i className={`fa-solid fa-layer-group mr-1.5 ${activeTab === 'flashcards' ? 'text-white' : 'text-gray-400 dark:text-white/40'}`}></i>
                       Flashcards
                     </button>
                     <button 
                       onClick={() => setActiveTab("quiz")}
-                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'quiz' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                      className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'quiz' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
                     >
-                      <i className={`fa-solid fa-clipboard-question mr-1.5 ${activeTab === 'quiz' ? 'text-white' : 'text-white/40'}`}></i>
+                      <i className={`fa-solid fa-clipboard-question mr-1.5 ${activeTab === 'quiz' ? 'text-white' : 'text-gray-400 dark:text-white/40'}`}></i>
                       Quiz
                     </button>
                     <button 
                       onClick={() => setActiveTab("graph")}
-                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'graph' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                      className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'graph' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
                     >
-                      <i className={`fa-solid fa-diagram-project mr-1.5 ${activeTab === 'graph' ? 'text-white' : 'text-white/40'}`}></i>
+                      <i className={`fa-solid fa-diagram-project mr-1.5 ${activeTab === 'graph' ? 'text-white' : 'text-gray-400 dark:text-white/40'}`}></i>
                       Graph
                     </button>
                     <button 
                       onClick={() => setActiveTab("podcast")}
-                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'podcast' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                      className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'podcast' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
                     >
-                      <i className={`fa-solid fa-podcast mr-1.5 ${activeTab === 'podcast' ? 'text-white' : 'text-white/40'}`}></i>
+                      <i className={`fa-solid fa-podcast mr-1.5 ${activeTab === 'podcast' ? 'text-white' : 'text-gray-400 dark:text-white/40'}`}></i>
                       Podcast
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab("feedback")}
+                      className={`px-4 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'feedback' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
+                    >
+                      <i className={`fa-solid fa-feather mr-1.5 ${activeTab === 'feedback' ? 'text-white' : 'text-gray-400 dark:text-white/40'}`}></i>
+                      Essay
                     </button>
                   </div>
 
@@ -365,8 +408,10 @@ export default function Dashboard() {
                       onClick={() => {
                         setFlashcards([]);
                         setQuizQuestions([]);
+                        setPodcastScript([]);
+                        setDocumentContext("");
                       }}
-                      className="px-3 py-2 rounded-lg bg-white/5 border border-white/[0.06] text-white/60 hover:text-white hover:bg-white/10 transition-colors text-[12px] font-medium flex items-center gap-1.5 active:scale-95"
+                      className="px-3 py-2 rounded-lg bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/[0.06] text-gray-500 dark:text-white/60 hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-[12px] font-medium flex items-center gap-1.5 active:scale-95"
                     >
                       <i className="fa-solid fa-rotate-left text-[10px]"></i>
                       New
@@ -416,6 +461,10 @@ export default function Dashboard() {
 
                 {activeTab === "podcast" && (
                   <PodcastScript script={podcastScript} />
+                )}
+
+                {activeTab === "feedback" && (
+                  <EssayFeedback />
                 )}
               </div>
             )}
