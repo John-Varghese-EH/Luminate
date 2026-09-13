@@ -215,6 +215,68 @@ export default function LandingPage() {
             <div className="stat-label">Tokens Analyzed</div>
           </div>
         </footer>
+
+        {/* NEW SCROLLABLE CONTENT */}
+        <div className="w-full relative z-10 bg-black/40 backdrop-blur-[20px] border-t border-white/10 mt-16 pb-24">
+          <div className="max-w-6xl mx-auto px-8 pt-24">
+            
+            {/* Features Section */}
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-white">Supercharge Your Study Flow</h2>
+              <p className="text-white/50 max-w-2xl mx-auto text-[17px] leading-relaxed">Luminate uses advanced AI to break down complex materials into digestible, interactive formats instantly.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
+              <div className="bg-[#18181b]/80 border border-white/10 rounded-[32px] p-8 hover:bg-white/10 transition-colors backdrop-blur-md relative overflow-hidden group hover:border-[#3b82f6]/30">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#3b82f6]/10 blur-[60px] rounded-full group-hover:bg-[#3b82f6]/30 transition-colors"></div>
+                <div className="w-14 h-14 bg-black/50 rounded-[20px] flex items-center justify-center mb-6 border border-white/10 shadow-[0_4px_20px_rgba(59,130,246,0.15)] group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-bolt text-2xl text-[#3b82f6]"></i>
+                </div>
+                <h3 className="text-[22px] font-bold text-white mb-3 tracking-tight">Lightning Fast</h3>
+                <p className="text-white/50 leading-relaxed text-[15px]">Powered by Gemini 2.5 Flash, Luminate parses entire PDF textbooks and generates study materials in milliseconds.</p>
+              </div>
+              
+              <div className="bg-[#18181b]/80 border border-white/10 rounded-[32px] p-8 hover:bg-white/10 transition-colors backdrop-blur-md relative overflow-hidden group hover:border-[#8b5cf6]/30">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#8b5cf6]/10 blur-[60px] rounded-full group-hover:bg-[#8b5cf6]/30 transition-colors"></div>
+                <div className="w-14 h-14 bg-black/50 rounded-[20px] flex items-center justify-center mb-6 border border-white/10 shadow-[0_4px_20px_rgba(139,92,246,0.15)] group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-layer-group text-2xl text-[#8b5cf6]"></i>
+                </div>
+                <h3 className="text-[22px] font-bold text-white mb-3 tracking-tight">3D Flashcards</h3>
+                <p className="text-white/50 leading-relaxed text-[15px]">Engage active recall with physics-based, interactive 3D flashcards that make studying feel like magic.</p>
+              </div>
+              
+              <div className="bg-[#18181b]/80 border border-white/10 rounded-[32px] p-8 hover:bg-white/10 transition-colors backdrop-blur-md relative overflow-hidden group hover:border-[#10b981]/30">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#10b981]/10 blur-[60px] rounded-full group-hover:bg-[#10b981]/30 transition-colors"></div>
+                <div className="w-14 h-14 bg-black/50 rounded-[20px] flex items-center justify-center mb-6 border border-white/10 shadow-[0_4px_20px_rgba(16,185,129,0.15)] group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-clipboard-question text-2xl text-[#10b981]"></i>
+                </div>
+                <h3 className="text-[22px] font-bold text-white mb-3 tracking-tight">Dynamic Quizzes</h3>
+                <p className="text-white/50 leading-relaxed text-[15px]">Test your knowledge with adaptive multiple-choice quizzes featuring instant color-coded feedback and detailed explanations.</p>
+              </div>
+            </div>
+
+            {/* Final CTA */}
+            <div className="bg-gradient-to-br from-[#18181b] to-black border border-white/10 rounded-[40px] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
+              <div className="absolute top-[-50%] left-[-10%] w-[60%] h-[150%] bg-[#3b82f6]/10 blur-[120px] rounded-full pointer-events-none mix-blend-screen"></div>
+              <div className="absolute bottom-[-50%] right-[-10%] w-[60%] h-[150%] bg-[#8b5cf6]/10 blur-[120px] rounded-full pointer-events-none mix-blend-screen"></div>
+              
+              <div className="relative z-10 max-w-2xl mx-auto">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                  <Image src="/assets/logo.webp" alt="Logo" width={40} height={40} className="object-contain" />
+                </div>
+                <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-white font-display leading-tight">Ready to Evolve<br/>Your Learning?</h2>
+                <p className="text-white/60 text-[17px] mb-10 leading-relaxed">Join thousands of students and professionals learning 10x faster with AI-generated study materials.</p>
+                <button 
+                  onClick={() => setIsAuthOpen(true)}
+                  className="px-10 py-4 bg-white text-black text-[15px] font-bold rounded-full hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+                >
+                  Start For Free
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />

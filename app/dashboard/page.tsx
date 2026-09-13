@@ -170,21 +170,43 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="flex flex-col gap-8 animate-fade-in">
-                <div className="flex bg-[#18181b]/80 backdrop-blur-md border border-white/10 p-1.5 rounded-full w-fit mx-auto shadow-2xl relative z-20">
-                  <button 
-                    onClick={() => setActiveTab("flashcards")}
-                    className={`px-8 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-300 ${activeTab === 'flashcards' ? 'bg-[#3b82f6] text-white shadow-[0_4px_14px_rgba(59,130,246,0.4)]' : 'text-white/50 hover:text-white/80'}`}
-                  >
-                    <i className={`fa-solid fa-layer-group mr-2 ${activeTab === 'flashcards' ? 'text-white' : 'text-white/40'}`}></i>
-                    Flashcards
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab("quiz")}
-                    className={`px-8 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-300 ${activeTab === 'quiz' ? 'bg-[#3b82f6] text-white shadow-[0_4px_14px_rgba(59,130,246,0.4)]' : 'text-white/50 hover:text-white/80'}`}
-                  >
-                    <i className={`fa-solid fa-clipboard-question mr-2 ${activeTab === 'quiz' ? 'text-white' : 'text-white/40'}`}></i>
-                    Quiz
-                  </button>
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="flex bg-[#18181b]/80 backdrop-blur-md border border-white/10 p-1.5 rounded-full shadow-2xl relative z-20">
+                    <button 
+                      onClick={() => setActiveTab("flashcards")}
+                      className={`px-8 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-300 ${activeTab === 'flashcards' ? 'bg-[#3b82f6] text-white shadow-[0_4px_14px_rgba(59,130,246,0.4)]' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      <i className={`fa-solid fa-layer-group mr-2 ${activeTab === 'flashcards' ? 'text-white' : 'text-white/40'}`}></i>
+                      Flashcards
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab("quiz")}
+                      className={`px-8 py-2.5 rounded-full text-[14px] font-semibold transition-all duration-300 ${activeTab === 'quiz' ? 'bg-[#3b82f6] text-white shadow-[0_4px_14px_rgba(59,130,246,0.4)]' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      <i className={`fa-solid fa-clipboard-question mr-2 ${activeTab === 'quiz' ? 'text-white' : 'text-white/40'}`}></i>
+                      Quiz
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-3 relative z-20">
+                    <button 
+                      onClick={() => {
+                        setFlashcards([]);
+                        setQuizQuestions([]);
+                      }}
+                      className="px-4 py-2.5 rounded-[14px] bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-colors text-sm font-medium flex items-center gap-2 hover:scale-105 active:scale-95"
+                    >
+                      <i className="fa-solid fa-rotate-left"></i>
+                      New Session
+                    </button>
+                    <button 
+                      className="px-4 py-2.5 rounded-[14px] bg-[#10b981]/10 border border-[#10b981]/30 text-[#10b981] hover:bg-[#10b981]/20 hover:border-[#10b981]/50 transition-colors text-sm font-medium flex items-center gap-2 hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                      onClick={() => alert("Export feature unlocked in Pro version!")}
+                    >
+                      <i className="fa-solid fa-download"></i>
+                      Export
+                    </button>
+                  </div>
                 </div>
 
                 {activeTab === "flashcards" && (

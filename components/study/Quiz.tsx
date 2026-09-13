@@ -66,7 +66,6 @@ export default function Quiz({ questions }: QuizProps) {
   }
 
   return (
-  return (
     <div className="bg-gradient-to-b from-[#18181b] to-[#09090b] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] relative animate-fade-in overflow-hidden">
       {/* Subtle background glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6] blur-[120px] opacity-10 rounded-full pointer-events-none"></div>
