@@ -10,6 +10,8 @@ import Flashcard from "@/components/study/Flashcard";
 import Quiz, { QuizQuestion } from "@/components/study/Quiz";
 import SocraticTutor from "@/components/study/SocraticTutor";
 import KnowledgeGraph from "@/components/study/KnowledgeGraph";
+import SettingsModal from "@/components/ui/SettingsModal";
+import PodcastScript, { PodcastTurn } from "@/components/study/PodcastScript";
 import Image from "next/image";
 
 interface FlashcardData {
@@ -62,9 +64,12 @@ export default function Dashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [podcastScript, setPodcastScript] = useState<PodcastTurn[]>([]);
+  const [documentContext, setDocumentContext] = useState("");
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph">("flashcards");
+  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph" | "podcast">("flashcards");
   const [isFocusMode, setIsFocusMode] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Metrics state (mocked for visual preview)
   const [metrics] = useState({ streak: 12, mastered: 428, nodes: 84 });
@@ -119,8 +124,17 @@ export default function Dashboard() {
         
         {/* Bento Grid Header (Hidden during Focus Mode) */}
         <div className={`grid grid-cols-1 md:grid-cols-12 gap-4 mb-8 transition-all duration-700 ${isFocusMode ? 'opacity-10 pointer-events-none -translate-y-4' : 'opacity-100 translate-y-0'}`}>
-           <div className="md:col-span-6 lg:col-span-8 bg-[#111113] border border-white/[0.06] rounded-3xl p-8 relative overflow-hidden flex flex-col justify-end min-h-[160px]">
+           <div className="md:col-span-6 lg:col-span-8 bg-[#111113] border border-white/[0.06] rounded-3xl p-8 relative overflow-hidden flex flex-col justify-end min-h-[160px] group">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-3xl rounded-full pointer-events-none"></div>
+              
+              <button 
+                onClick={() => setIsSettingsOpen(true)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all hover:rotate-90 z-10"
+                title="API Settings (BYOK)"
+              >
+                <i className="fa-solid fa-gear"></i>
+              </button>
+
               <h2 className="text-2xl font-display font-bold text-white mb-1">Welcome back, {user.email?.split('@')[0]}</h2>
               <p className="text-white/50 text-[13px] max-w-sm leading-relaxed">Ready to synthesize today's lectures? You have 3 recent documents waiting for review.</p>
            </div>
@@ -169,15 +183,19 @@ export default function Dashboard() {
                   try {
                     const formData = new FormData();
                     formData.append("file", file);
+                    const apiKey = localStorage.getItem("gemini_api_key") || "";
                     const res = await fetch("/api/generate", {
                       method: "POST",
                       body: formData,
+                      headers: apiKey ? { "x-gemini-api-key": apiKey } : {},
                     });
                     if (!res.ok) throw new Error("Failed to process PDF");
                     
                     const data = await res.json();
                     setFlashcards(data.flashcards || []);
                     setQuizQuestions(data.quiz || []);
+                    setPodcastScript(data.podcastScript || []);
+                    if (data.extractedText) setDocumentContext(data.extractedText);
                     setActiveTab("flashcards");
                   } catch (err) {
                     const msg = err instanceof Error ? err.message : "An error occurred";
@@ -192,15 +210,19 @@ export default function Dashboard() {
                   try {
                     const formData = new FormData();
                     formData.append("text", text);
+                    const apiKey = localStorage.getItem("gemini_api_key") || "";
                     const res = await fetch("/api/generate", {
                       method: "POST",
                       body: formData,
+                      headers: apiKey ? { "x-gemini-api-key": apiKey } : {},
                     });
                     if (!res.ok) throw new Error("Failed to process text");
                     
                     const data = await res.json();
                     setFlashcards(data.flashcards || []);
                     setQuizQuestions(data.quiz || []);
+                    setPodcastScript(data.podcastScript || []);
+                    if (data.extractedText) setDocumentContext(data.extractedText);
                     setActiveTab("flashcards");
                   } catch (err) {
                     const msg = err instanceof Error ? err.message : "An error occurred";
@@ -258,6 +280,10 @@ export default function Dashboard() {
                               correctAnswer: "Superposition",
                               explanation: "Superposition is the principle that allows a quantum system to exist in multiple states simultaneously until it is measured."
                             }
+                          ]);
+                          setPodcastScript([
+                            { speaker: "Host 1", text: "Welcome back! Today we're diving into the strange world of quantum physics." },
+                            { speaker: "Host 2", text: "That's right. And it all starts with the Qubit—unlike regular computer bits that are 0 or 1, Qubits can be both at the same time thanks to superposition." }
                           ]);
                           setActiveTab("flashcards");
                         }}
@@ -325,6 +351,13 @@ export default function Dashboard() {
                       <i className={`fa-solid fa-diagram-project mr-1.5 ${activeTab === 'graph' ? 'text-white' : 'text-white/40'}`}></i>
                       Graph
                     </button>
+                    <button 
+                      onClick={() => setActiveTab("podcast")}
+                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'podcast' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      <i className={`fa-solid fa-podcast mr-1.5 ${activeTab === 'podcast' ? 'text-white' : 'text-white/40'}`}></i>
+                      Podcast
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -380,6 +413,10 @@ export default function Dashboard() {
                 {activeTab === "graph" && (
                   <KnowledgeGraph />
                 )}
+
+                {activeTab === "podcast" && (
+                  <PodcastScript script={podcastScript} />
+                )}
               </div>
             )}
           </div>
@@ -387,7 +424,20 @@ export default function Dashboard() {
       </main>
       
       {/* Premium Feature: Socratic Tutor */}
-      <SocraticTutor />
+      <SocraticTutor documentContext={documentContext} />
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        initialKey={typeof window !== 'undefined' ? localStorage.getItem('gemini_api_key') || '' : ''}
+        onSave={(key) => {
+          if (key.trim()) {
+            localStorage.setItem('gemini_api_key', key.trim());
+          } else {
+            localStorage.removeItem('gemini_api_key');
+          }
+        }}
+      />
     </div>
   );
 }

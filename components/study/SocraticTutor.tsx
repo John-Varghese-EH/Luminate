@@ -9,7 +9,11 @@ interface Message {
   content: string;
 }
 
-export default function SocraticTutor() {
+interface SocraticTutorProps {
+  documentContext?: string;
+}
+
+export default function SocraticTutor({ documentContext }: SocraticTutorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
@@ -45,10 +49,18 @@ export default function SocraticTutor() {
     setError(null);
 
     try {
+      const apiKey = localStorage.getItem("gemini_api_key") || "";
+      
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedMessages }),
+        headers: { 
+          "Content-Type": "application/json",
+          ...(apiKey ? { "x-gemini-api-key": apiKey } : {})
+        },
+        body: JSON.stringify({ 
+          messages: updatedMessages,
+          documentContext: documentContext
+        }),
       });
 
       const data = await res.json();

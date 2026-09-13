@@ -314,7 +314,7 @@ export default function LandingPage() {
              </div>
           </div>
 
-          <h1 className="font-display text-[#fff] text-[clamp(28px,6.2vw,80px)] leading-[1.05] tracking-[-0.04em] flex flex-col whitespace-nowrap overflow-hidden">
+          <h1 className="font-display text-[#fff] text-[clamp(28px,6.2vw,80px)] leading-[1.05] tracking-[-0.04em] flex flex-col whitespace-nowrap overflow-hidden pb-4">
             <span className="block opacity-0 translate-y-[14px] animate-headline-fade" style={{ animationDelay: '0.12s' }}>Intelligence</span>
             <span className="block opacity-0 translate-y-[14px] animate-headline-fade" style={{ animationDelay: '0.3s' }}>Designed To Evolve</span>
           </h1>

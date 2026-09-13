@@ -32,10 +32,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Not enough readable text found. Please provide more content." }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const customApiKey = req.headers.get("x-gemini-api-key");
+    const apiKey = customApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.error("DEVELOPMENT ERROR: GEMINI_API_KEY is not set in the environment.");
-      return NextResponse.json({ error: "API key not configured." }, { status: 500 });
+      console.error("DEVELOPMENT ERROR: GEMINI_API_KEY is not set in the environment and no custom key provided.");
+      return NextResponse.json({ error: "API key not configured. Please add one in Settings." }, { status: 401 });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -73,20 +74,32 @@ export async function POST(req: NextRequest) {
                 required: ["question", "options", "correctAnswer", "explanation"],
               },
             },
+            podcastScript: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  speaker: { type: SchemaType.STRING },
+                  text: { type: SchemaType.STRING },
+                },
+                required: ["speaker", "text"],
+              },
+            },
           },
-          required: ["flashcards", "quiz"],
+          required: ["flashcards", "quiz", "podcastScript"],
         },
       },
     });
 
     const prompt = `
-      You are an expert educator. Generate 5-10 educational flashcards and a 5-question multiple choice quiz from the provided text.
-      
+      You are an expert educator and podcast producer. Generate three things from the provided text:
+      1. 5-10 educational flashcards.
+      2. A 5-question multiple choice quiz.
+      3. A conversational "Podcast Script" (Audio Overview) between Host 1 and Host 2 discussing the material.
+
       Quality Rules:
-      - Questions must test deep conceptual understanding, not just rote memorization.
-      - Answers/explanations must be concise, accurate, and highly educational.
-      - Each quiz question must have exactly 4 plausible options, and one 'correctAnswer' exactly matching one of the options.
-      - Target the most important learning objectives in the text.
+      - Quiz questions must test deep conceptual understanding.
+      - The podcast script should be engaging, conversational, and accurately reflect the core concepts in the text. Host 1 is usually the main guide, and Host 2 asks insightful questions or provides analogies.
       
       Text: ${extractedText.substring(0, 30000)} // Truncating to avoid massive token limits if PDF is huge
     `;
@@ -97,7 +110,10 @@ export async function POST(req: NextRequest) {
     // Parse the strict JSON output
     const data = JSON.parse(responseText);
 
-    return NextResponse.json(data);
+    return NextResponse.json({
+      ...data,
+      extractedText, // Send extracted text back for grounding
+    });
   } catch (error: unknown) {
     console.error("Generate API Error:", error);
     const msg = error instanceof Error ? error.message : "Internal server error";
