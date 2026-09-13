@@ -50,15 +50,10 @@ export async function POST(req: Request) {
 
       return NextResponse.json({ valid: true });
     } catch (dnsError: any) {
-      // ENOTFOUND means the domain doesn't exist
-      // ENODATA means the domain exists but has no MX records
-      if (dnsError.code === 'ENOTFOUND' || dnsError.code === 'ENODATA') {
-        return NextResponse.json({ valid: false, reason: "Domain does not exist or has no mail servers" });
-      }
-      
-      console.warn(`[DNS Check] Non-fatal error checking ${domain}:`, dnsError.message);
-      // Fail-open for other DNS errors (like timeouts)
-      return NextResponse.json({ valid: true, error: dnsError.message });
+      console.warn(`[DNS Check] Error checking ${domain}:`, dnsError.message);
+      // ANY DNS error (ENOTFOUND, ENODATA, ESERVFAIL, ETIMEOUT) means we can't verify mail servers.
+      // We assume the domain is invalid, misspelled, or non-existent.
+      return NextResponse.json({ valid: false, reason: "Domain does not exist or has no mail servers" });
     }
   } catch (error) {
     console.error("[check-domain] API error:", error);
