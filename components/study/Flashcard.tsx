@@ -31,7 +31,7 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
       >
         {/* Front */}
         <div 
-          className="absolute inset-0 flex flex-col rounded-[28px] sm:rounded-[32px] bg-white dark:bg-gradient-to-b dark:from-[#18181b] dark:to-[#09090b] border border-gray-200 dark:border-white/10 p-6 sm:p-8"
+          className="absolute inset-0 flex flex-col rounded-[28px] sm:rounded-[32px] bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-xl border border-gray-200/50 dark:border-white/10 p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
           style={{ backfaceVisibility: "hidden" }}
         >
           {/* Subtle top inner glow */}
@@ -80,20 +80,20 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
           </div>
 
           {/* Spaced Repetition Action Bar */}
-          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] flex items-center justify-between gap-2 sm:gap-3 p-1.5 bg-black/40 dark:bg-[#09090b]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]" onClick={(e) => e.stopPropagation()}>
-            <button onClick={(e) => handleRating(e, "hard")} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-red-500/20 hover:shadow-[inset_0_0_12px_rgba(239,68,68,0.3)] transition-all active:scale-95 group/btn ${rating === 'hard' ? 'text-white bg-red-500/20' : 'text-red-400'}`}>
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[85%] flex items-center justify-between gap-2 sm:gap-3 p-1.5 bg-black/40 dark:bg-[#09090b]/80 backdrop-blur-xl border border-white/10 rounded-[20px] shadow-[0_8px_32px_rgba(0,0,0,0.5)]" onClick={(e) => e.stopPropagation()}>
+            <button onClick={(e) => handleRating(e, "hard")} className={`flex-1 py-2 sm:py-2.5 rounded-[16px] text-xs font-semibold tracking-wide hover:text-white hover:bg-red-500/20 hover:shadow-[inset_0_0_12px_rgba(239,68,68,0.3)] transition-all duration-300 active:scale-[0.97] group/btn ${rating === 'hard' ? 'text-white bg-red-500/20' : 'text-red-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-rotate-left text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Hard
               </span>
             </button>
             <div className="w-px h-5 sm:h-6 bg-white/10"></div>
-            <button onClick={(e) => handleRating(e, "good")} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-blue-500/20 hover:shadow-[inset_0_0_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 group/btn ${rating === 'good' ? 'text-white bg-blue-500/20' : 'text-blue-400'}`}>
+            <button onClick={(e) => handleRating(e, "good")} className={`flex-1 py-2 sm:py-2.5 rounded-[16px] text-xs font-semibold tracking-wide hover:text-white hover:bg-blue-500/20 hover:shadow-[inset_0_0_12px_rgba(59,130,246,0.3)] transition-all duration-300 active:scale-[0.97] group/btn ${rating === 'good' ? 'text-white bg-blue-500/20' : 'text-blue-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-check text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Good
               </span>
             </button>
             <div className="w-px h-5 sm:h-6 bg-white/10"></div>
-            <button onClick={(e) => handleRating(e, "easy")} className={`flex-1 py-2 sm:py-2.5 rounded-xl text-xs font-semibold tracking-wide hover:text-white hover:bg-green-500/20 hover:shadow-[inset_0_0_12px_rgba(34,197,94,0.3)] transition-all active:scale-95 group/btn ${rating === 'easy' ? 'text-white bg-green-500/20' : 'text-green-400'}`}>
+            <button onClick={(e) => handleRating(e, "easy")} className={`flex-1 py-2 sm:py-2.5 rounded-[16px] text-xs font-semibold tracking-wide hover:text-white hover:bg-green-500/20 hover:shadow-[inset_0_0_12px_rgba(34,197,94,0.3)] transition-all duration-300 active:scale-[0.97] group/btn ${rating === 'easy' ? 'text-white bg-green-500/20' : 'text-green-400'}`}>
               <span className="flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-forward-step text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Easy
               </span>

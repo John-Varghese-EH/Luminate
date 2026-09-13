@@ -48,6 +48,8 @@ export default function SettingsModal({ isOpen, onClose, onSave, initialKey }: S
           <label className="block text-sm font-semibold text-gray-700 dark:text-white/70 mb-2">Google Gemini API Key</label>
           <div className="relative">
             <input 
+              id="settings-api-key"
+              name="api-key"
               type="password" 
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}

@@ -46,7 +46,7 @@ export default function KnowledgeGraph() {
   if (!mounted) return null;
 
   return (
-    <div className="relative w-full h-[350px] sm:h-[450px] md:h-[500px] bg-white dark:bg-[#111113] rounded-3xl border border-gray-200 dark:border-white/[0.06] overflow-hidden shadow-lg dark:shadow-2xl transition-colors">
+    <div className="relative w-full h-[350px] sm:h-[450px] md:h-[500px] bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-2xl rounded-[32px] border border-gray-200/50 dark:border-white/10 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] transition-colors">
       {/* Background Grid */}
       <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
       
@@ -129,7 +129,7 @@ export default function KnowledgeGraph() {
       </div>
       
       {/* Legend */}
-      <div className="absolute top-3 left-3 sm:top-6 sm:left-6 p-2.5 sm:p-4 rounded-xl bg-white/80 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/5 flex flex-col gap-2 sm:gap-3">
+      <div className="absolute top-3 left-3 sm:top-6 sm:left-6 p-2.5 sm:p-4 rounded-[16px] bg-white/80 dark:bg-black/40 backdrop-blur-md border border-gray-200/50 dark:border-white/5 flex flex-col gap-2 sm:gap-3">
         <h4 className="text-[9px] sm:text-[10px] uppercase tracking-widest text-gray-400 dark:text-white/40 font-bold mb-0.5 sm:mb-1">Knowledge Map</h4>
         <div className="flex items-center gap-1.5 sm:gap-2">
           <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-500/50 border border-blue-400/50"></div>

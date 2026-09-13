@@ -21,7 +21,7 @@ export default function PodcastScript({ script }: PodcastScriptProps) {
   if (!mounted || !script || script.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-3xl p-5 sm:p-6 md:p-8 overflow-hidden relative shadow-lg dark:shadow-2xl transition-colors">
+    <div className="bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-2xl border border-gray-200/50 dark:border-white/10 rounded-[32px] p-5 sm:p-6 md:p-8 overflow-hidden relative shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_80px_-20px_rgba(249,115,22,0.1)] transition-colors">
       {/* Glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full pointer-events-none"></div>
 
@@ -46,10 +46,10 @@ export default function PodcastScript({ script }: PodcastScriptProps) {
                 </span>
               </div>
               <div 
-                className={`max-w-[92%] sm:max-w-[85%] p-3.5 sm:p-4 md:p-5 rounded-2xl text-sm sm:text-[15px] leading-relaxed shadow-sm ${
+                className={`max-w-[92%] sm:max-w-[85%] p-3.5 sm:p-4 md:p-5 rounded-[24px] text-sm sm:text-[15px] leading-relaxed shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 ${
                   isHost1 
-                    ? 'bg-gray-50 dark:bg-[#18181b] border border-gray-200 dark:border-white/[0.06] text-gray-800 dark:text-white/90 rounded-tl-sm' 
-                    : 'bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-500/10 dark:to-blue-500/10 border border-purple-200 dark:border-purple-500/20 text-gray-800 dark:text-white rounded-tr-sm'
+                    ? 'bg-white dark:bg-[#18181b] border border-gray-200 dark:border-white/[0.06] text-gray-800 dark:text-white/90 rounded-tl-sm' 
+                    : 'bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-500/10 dark:to-blue-500/10 border border-purple-200/50 dark:border-purple-500/20 text-gray-800 dark:text-white rounded-tr-sm'
                 }`}
               >
                 {turn.text}

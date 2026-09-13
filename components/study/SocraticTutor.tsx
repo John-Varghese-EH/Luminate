@@ -197,8 +197,8 @@ export default function SocraticTutor({ documentContext }: SocraticTutorProps) {
       {/* ─── Agent Panel ─── */}
       <div
         ref={panelRef}
-        className={`fixed top-0 right-0 z-50 w-full sm:w-[420px] h-full flex flex-col transform transition-transform duration-500 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 z-50 w-full sm:w-[420px] h-full flex flex-col transform transition-all duration-500 ${
+          isOpen ? "translate-x-0 opacity-100 pointer-events-auto" : "translate-x-full opacity-0 pointer-events-none"
         }`}
         style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
       >
@@ -391,6 +391,8 @@ export default function SocraticTutor({ documentContext }: SocraticTutorProps) {
             <form onSubmit={handleSendMessage}
               className="relative flex items-center bg-gray-50 dark:bg-[#18181b] rounded-2xl border border-gray-200 dark:border-white/[0.08] p-1 focus-within:border-violet-400/60 dark:focus-within:border-violet-500/40 focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.08)] dark:focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.1)] transition-all duration-200">
               <input
+                id="agent-chat-input"
+                name="agent-chat-input"
                 ref={inputRef}
                 type="text"
                 value={inputMessage}

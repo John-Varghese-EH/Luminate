@@ -57,7 +57,7 @@ export default function Quiz({ questions }: QuizProps) {
             setSelectedOption(null);
             setShowFeedback(false);
           }}
-          className="bg-[#3b82f6] text-white font-semibold rounded-xl px-8 py-3 hover:bg-[#60a5fa] transition-colors shadow-lg shadow-blue-500/20 active:scale-95"
+          className="bg-[#3b82f6] text-white font-semibold rounded-[16px] px-8 py-3.5 hover:bg-[#60a5fa] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] active:scale-[0.97] hover:-translate-y-0.5"
         >
           Retake Quiz
         </button>
@@ -66,7 +66,7 @@ export default function Quiz({ questions }: QuizProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gradient-to-b dark:from-[#18181b] dark:to-[#09090b] border border-gray-200 dark:border-white/10 rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg dark:shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] relative animate-fade-in overflow-hidden">
+    <div className="bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-2xl border border-gray-200/50 dark:border-white/10 rounded-[32px] p-5 sm:p-8 md:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] relative animate-fade-in overflow-hidden">
       {/* Subtle background glow */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#3b82f6] blur-[120px] opacity-5 dark:opacity-10 rounded-full pointer-events-none"></div>
 
@@ -116,7 +116,7 @@ export default function Quiz({ questions }: QuizProps) {
               key={i}
               onClick={() => handleSelect(opt)}
               disabled={showFeedback}
-              className={`w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-500 ease-out relative overflow-hidden flex items-center gap-3 sm:gap-4 group ${stateClass}`}
+              className={`w-full text-left p-4 sm:p-5 rounded-[24px] border transition-all duration-500 ease-out relative overflow-hidden flex items-center gap-3 sm:gap-4 group ${stateClass}`}
             >
               <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors
                 ${showFeedback && isCorrect ? "border-emerald-500 bg-emerald-500" : 
@@ -150,7 +150,7 @@ export default function Quiz({ questions }: QuizProps) {
             <div className="flex justify-end">
               <button 
                 onClick={nextQuestion}
-                className="bg-[#3b82f6] text-white font-bold rounded-xl px-5 sm:px-7 py-2.5 sm:py-3.5 hover:bg-[#60a5fa] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 text-sm sm:text-base"
+                className="bg-[#3b82f6] text-white font-bold rounded-[16px] px-5 sm:px-7 py-2.5 sm:py-3.5 hover:bg-[#60a5fa] hover:scale-105 active:scale-[0.97] transition-all duration-300 flex items-center gap-2 shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] text-sm sm:text-base hover:-translate-y-0.5"
               >
                 Next Question
                 <i className="fa-solid fa-arrow-right text-sm"></i>

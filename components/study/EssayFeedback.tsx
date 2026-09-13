@@ -69,7 +69,9 @@ ${essay}`
   };
 
   return (
-    <div className="bg-white dark:bg-[#111113] border border-gray-200 dark:border-white/[0.06] rounded-3xl p-6 transition-colors">
+    <div className="bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-2xl border border-gray-200/50 dark:border-white/10 rounded-[32px] p-6 sm:p-8 md:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_80px_-20px_rgba(168,85,247,0.15)] transition-colors relative overflow-hidden">
+      {/* Subtle background glow */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 blur-[120px] opacity-5 dark:opacity-10 rounded-full pointer-events-none"></div>
       <div className="flex items-center gap-3 mb-2">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/10 flex items-center justify-center">
           <i className="fa-solid fa-feather text-purple-500"></i>
@@ -81,10 +83,12 @@ ${essay}`
       </div>
 
       <textarea
+        id="essay-feedback-input"
+        name="essay-text"
         value={essay}
         onChange={(e) => setEssay(e.target.value)}
         placeholder="Paste your essay, study notes, or written assignment here..."
-        className="w-full h-48 bg-gray-50 dark:bg-black/50 border border-gray-200 dark:border-white/10 rounded-2xl p-4 text-gray-900 dark:text-white text-[14px] focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 resize-none mt-4 mb-4 transition-colors placeholder:text-gray-400 dark:placeholder:text-white/25"
+        className="w-full h-48 bg-white/50 dark:bg-black/20 backdrop-blur-sm border-2 border-gray-200 dark:border-white/10 rounded-[24px] p-4 text-gray-900 dark:text-white text-[14px] focus:outline-none focus:border-purple-400 dark:focus:border-purple-500/50 focus:shadow-[0_0_30px_-10px_rgba(168,85,247,0.2)] resize-none mt-4 mb-4 transition-all duration-300 placeholder:text-gray-400 dark:placeholder:text-white/30"
       />
 
       <div className="flex items-center justify-between">
@@ -94,7 +98,7 @@ ${essay}`
         <button
           onClick={handleGrade}
           disabled={isGrading || !essay.trim()}
-          className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-40 disabled:hover:from-purple-600 disabled:hover:to-pink-600 text-white rounded-xl font-semibold text-sm transition-all active:scale-95 flex items-center gap-2 shadow-md shadow-purple-500/20"
+          className="px-6 sm:px-8 py-2.5 sm:py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-40 disabled:hover:from-purple-500 disabled:hover:to-pink-500 text-white rounded-[16px] font-bold text-sm transition-all duration-300 active:scale-[0.97] flex items-center gap-2 shadow-[0_8px_20px_-6px_rgba(168,85,247,0.5)] hover:-translate-y-0.5"
         >
           {isGrading ? (
             <>

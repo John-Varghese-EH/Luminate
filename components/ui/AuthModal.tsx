@@ -155,6 +155,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="relative group/input">
               <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-pink-500 transition-colors"></i>
               <input 
+                id="auth-email"
+                name="email"
                 type="email" 
                 placeholder="Email Address" 
                 value={email}
@@ -167,6 +169,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="relative group/input">
               <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-pink-500 transition-colors"></i>
               <input 
+                id="auth-password"
+                name="password"
                 type="password" 
                 placeholder="Password" 
                 value={password}

@@ -75,16 +75,16 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex bg-gray-100 dark:bg-[#111113] border border-gray-200 dark:border-white/10 rounded-xl p-1">
+      <div className="flex bg-gray-100/80 dark:bg-black/40 backdrop-blur-md border border-gray-200/80 dark:border-white/[0.04] rounded-[16px] p-1.5 transition-colors shadow-inner">
         <button 
           onClick={() => setInputMode("file")}
-          className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${inputMode === 'file' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
+          className={`flex-1 py-2 rounded-[12px] text-xs font-semibold transition-all duration-300 ${inputMode === 'file' ? 'bg-white dark:bg-[#1f1f22] text-blue-600 dark:text-blue-400 shadow-[0_2px_10px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_15px_rgba(0,0,0,0.3)] scale-[1.02]' : 'text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white/80 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97]'}`}
         >
           PDF Upload
         </button>
         <button 
           onClick={() => setInputMode("text")}
-          className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${inputMode === 'text' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white/80'}`}
+          className={`flex-1 py-2 rounded-[12px] text-xs font-semibold transition-all duration-300 ${inputMode === 'text' ? 'bg-white dark:bg-[#1f1f22] text-blue-600 dark:text-blue-400 shadow-[0_2px_10px_rgba(0,0,0,0.06)] dark:shadow-[0_2px_15px_rgba(0,0,0,0.3)] scale-[1.02]' : 'text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white/80 hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.97]'}`}
         >
           Paste Text
         </button>
@@ -92,10 +92,10 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
 
       {inputMode === "file" ? (
         <div
-          className={`relative group overflow-hidden border-2 border-dashed rounded-[32px] p-8 text-center transition-all duration-500 cursor-pointer
+          className={`relative group overflow-hidden border-2 border-dashed rounded-[32px] p-8 text-center transition-all duration-500 cursor-pointer backdrop-blur-md
             ${isDragging 
-              ? "border-[#3b82f6] bg-blue-50 dark:bg-[#3b82f6]/10 shadow-[0_0_60px_-15px_rgba(59,130,246,0.5)] scale-[1.02]" 
-              : "border-gray-300 dark:border-white/10 bg-white dark:bg-[#09090b] hover:bg-gray-50 dark:hover:bg-[#18181b] hover:border-blue-400 dark:hover:border-[#3b82f6]/50 hover:shadow-lg dark:hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.3)]"}
+              ? "border-[#3b82f6] bg-blue-50/80 dark:bg-[#3b82f6]/10 shadow-[0_0_60px_-15px_rgba(59,130,246,0.5)] scale-[1.02]" 
+              : "border-gray-300 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-[#18181b]/80 hover:border-blue-400 dark:hover:border-[#3b82f6]/50 hover:shadow-lg dark:hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.3)]"}
           `}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -103,6 +103,8 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
           onDrop={handleDrop}
         >
           <input 
+            id="file-upload-input"
+            name="file-upload"
             type="file" 
             accept="application/pdf" 
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
@@ -127,14 +129,16 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
       ) : (
         <div className="flex flex-col gap-3">
           <textarea
+            id="text-upload-input"
+            name="text-upload"
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             placeholder="Paste your notes or article here..."
-            className="w-full h-48 bg-white dark:bg-[#09090b] border-2 border-gray-200 dark:border-white/10 focus:border-blue-400 dark:focus:border-[#3b82f6]/50 rounded-[24px] p-4 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 resize-none transition-all focus:outline-none focus:shadow-lg dark:focus:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]"
+            className="w-full h-48 bg-white/50 dark:bg-white/5 backdrop-blur-sm border-2 border-gray-200 dark:border-white/10 focus:border-blue-400 dark:focus:border-[#3b82f6]/50 rounded-[24px] p-4 text-sm text-gray-900 dark:text-white/90 placeholder:text-gray-400 dark:placeholder:text-white/30 resize-none transition-all duration-300 focus:outline-none focus:shadow-lg dark:focus:shadow-[0_0_30px_-10px_rgba(59,130,246,0.2)]"
           ></textarea>
           <button 
             onClick={handleTextSubmit}
-            className="w-full py-3 bg-[#3b82f6] hover:bg-[#60a5fa] text-white rounded-xl text-[14px] font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+            className="w-full py-3 bg-[#3b82f6] hover:bg-[#60a5fa] text-white rounded-[16px] text-[14px] font-bold shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] transition-all duration-300 active:scale-[0.97] hover:-translate-y-0.5"
           >
             Generate Flashcards
           </button>
