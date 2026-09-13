@@ -1,197 +1,224 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import {
-  Zap,
-  FileText,
-  Brain,
-  Download,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="group relative rounded-xl border border-border bg-surface p-6 transition-all duration-300 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
-        <Icon className="h-5 w-5" />
-      </div>
-      <h3 className="mb-2 text-lg font-semibold text-foreground">{title}</h3>
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        {description}
-      </p>
-    </div>
-  );
-}
-
-function StepIndicator({ step, label }: { step: number; label: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">
-        {step}
-      </span>
-      <span className="text-sm font-medium text-foreground">{label}</span>
-    </div>
-  );
-}
+import AuthModal from "@/components/ui/AuthModal";
+import "./landing-style.css";
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  useEffect(() => {
+    // Counting Animation (Stats)
+    const counters = document.querySelectorAll('.stat-val');
+    
+    const animateValue = (element: Element, start: number, end: number, duration: number, decimals: number) => {
+        let startTimestamp: number | null = null;
+        
+        // easeOutCubic
+        const easeOutCubic = (t: number) => {
+            return 1 - Math.pow(1 - t, 3);
+        };
+
+        const step = (timestamp: number) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            
+            const currentVal = start + (end - start) * easeOutCubic(progress);
+            
+            element.innerHTML = currentVal.toFixed(decimals);
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                element.innerHTML = end.toFixed(decimals);
+            }
+        };
+        
+        window.requestAnimationFrame(step);
+    };
+
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const element = entry.target;
+                    const targetVal = parseFloat(element.getAttribute('data-target') || '0');
+                    const decimals = parseInt(element.getAttribute('data-decimals') || '0', 10);
+                    
+                    const domIndex = Array.from(counters).indexOf(element);
+                    
+                    const duration = 1500 + domIndex * 80;
+                    const delay = 480 + domIndex * 90;
+
+                    setTimeout(() => {
+                        animateValue(element, 0, targetVal, duration, decimals);
+                    }, delay);
+                    
+                    observer.unobserve(element);
+                }
+            });
+        }, { threshold: 0.25 });
+
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
+    } else {
+        counters.forEach((element, domIndex) => {
+            const targetVal = parseFloat(element.getAttribute('data-target') || '0');
+            const decimals = parseInt(element.getAttribute('data-decimals') || '0', 10);
+            
+            const duration = 1500 + domIndex * 80;
+            const delay = 480 + domIndex * 90;
+
+            setTimeout(() => {
+                animateValue(element, 0, targetVal, duration, decimals);
+            }, delay);
+        });
+    }
+
+    // Handle escape key
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    
+    // Handle resize
+    const handleResize = () => {
+        if (window.innerWidth > 720) setIsMenuOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+  }, [isMenuOpen]);
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
-              <Sparkles className="h-4 w-4 text-white" />
+    <div className="landing-wrapper">
+      <div className="bg">
+        <video className="bg-video" autoPlay muted loop playsInline>
+          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      <div className="page">
+        <header className="header">
+          <div className="logo">
+            <Image src="/assets/logo.webp" width={52} height={52} alt="Logo" priority />
+          </div>
+          
+          <nav className="nav-desktop">
+            <Link href="/" className="active">Home</Link>
+            <Link href="#">Product</Link>
+            <Link href="#">Case Studies</Link>
+            <Link href="#">Contact</Link>
+          </nav>
+
+          <button onClick={() => setIsAuthOpen(true)} className="sign-in-desktop block text-center" style={{ lineHeight: '44px', textDecoration: 'none' }}>
+            Sign In
+          </button>
+
+          <button 
+            className="burger-menu" 
+            aria-expanded={isMenuOpen} 
+            aria-label="Toggle menu"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <div className="burger-bars">
+              <span className="bar top"></span>
+              <span className="bar middle"></span>
+              <span className="bar bottom"></span>
             </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              Luminate
-            </span>
-          </Link>
-          <nav className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-            >
-              Get started
-            </Link>
+          </button>
+        </header>
+
+        <div className="mobile-overlay" hidden={!isMenuOpen} onClick={() => setIsMenuOpen(false)}></div>
+        <div className="mobile-menu" hidden={!isMenuOpen}>
+          <nav className="nav-mobile">
+            <Link href="/" className="active anim-link" style={{ "--d": "0.1s" } as React.CSSProperties} onClick={() => setIsMenuOpen(false)}>Home</Link>
+            <Link href="#" className="anim-link" style={{ "--d": "0.15s" } as React.CSSProperties} onClick={() => setIsMenuOpen(false)}>Product</Link>
+            <Link href="#" className="anim-link" style={{ "--d": "0.2s" } as React.CSSProperties} onClick={() => setIsMenuOpen(false)}>Case Studies</Link>
+            <Link href="#" className="anim-link" style={{ "--d": "0.25s" } as React.CSSProperties} onClick={() => setIsMenuOpen(false)}>Contact</Link>
+            <button onClick={() => { setIsMenuOpen(false); setIsAuthOpen(true); }} className="sign-in-mobile anim-link block text-center" style={{ "--d": "0.3s", textDecoration: "none" } as React.CSSProperties}>Sign In</button>
           </nav>
         </div>
-      </header>
 
-      <main className="flex-1">
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/5 blur-3xl" />
+        <main className="hero">
+          <div className="hero-content">
+            <div className="trust-row anim" style={{ "--d": "0.05s" } as React.CSSProperties}>
+              <div className="avatar-ring avatar-1"><div className="avatar-inner"><i className="fa-brands fa-microsoft"></i></div></div>
+              <div className="avatar-ring avatar-2"><div className="avatar-inner"><i className="fa-brands fa-amazon"></i></div></div>
+              <div className="avatar-ring avatar-3"><div className="avatar-inner"><i className="fa-brands fa-google"></i></div></div>
+              <div className="trust-pill">Trusted by 2000+ Enterprises</div>
+            </div>
+
+            <h1 className="headline anim">
+              <span className="line" style={{ "--d": "0.12s" } as React.CSSProperties}>Intelligence</span>
+              <span className="line" style={{ "--d": "0.3s" } as React.CSSProperties}>Designed To Evolve</span>
+            </h1>
+
+            <p className="subhead anim" style={{ "--d": "0.28s" } as React.CSSProperties}>
+              Build applications that reason, adapt and collaborate using a modular
+              AI platform designed for production.
+            </p>
+
+            <button className="cta anim" style={{ "--d": "0.4s" } as React.CSSProperties} onClick={() => setIsAuthOpen(true)}>Get Started</button>
+          </div>
+        </main>
+
+        <footer className="stats">
+          <div className="stat-item anim" style={{ "--d": "0.5s" } as React.CSSProperties}>
+            <div className="stat-val-group">
+              <span className="stat-icon">&lt;</span>
+              <span className="stat-val" data-target="120" data-decimals="0">0</span>
+              <span className="stat-suffix">ms</span>
+            </div>
+            <div className="stat-label">Inference Time</div>
           </div>
 
-          <div className="mx-auto max-w-6xl px-6 pb-24 pt-20 md:pb-32 md:pt-28">
-            <div className="mx-auto max-w-3xl text-center">
-              <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-4 py-1.5 text-sm font-medium text-accent">
-                <Zap className="h-3.5 w-3.5" />
-                AI-powered study materials
-              </div>
-
-              <h1 className="animate-fade-in stagger-1 mb-6 text-4xl font-extrabold leading-tight tracking-tight text-foreground md:text-6xl md:leading-[1.1]">
-                Turn any lecture into
-                <br />
-                <span className="bg-gradient-to-r from-accent to-blue-400 bg-clip-text text-transparent">
-                  active recall
-                </span>
-              </h1>
-
-              <p className="animate-fade-in stagger-2 mb-10 text-lg leading-relaxed text-muted-foreground md:text-xl">
-                Upload a PDF, and Luminate transforms it into structured
-                summaries, flashcards, and key terminology. Built for the
-                11th-hour study session.
-              </p>
-
-              <div className="animate-fade-in stagger-3 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link
-                  href="/register"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-base font-semibold text-white shadow-lg shadow-accent/25 transition-all hover:bg-accent-hover hover:shadow-xl hover:shadow-accent/30"
-                >
-                  Start studying
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-                <Link
-                  href="#how-it-works"
-                  className="inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-base font-semibold text-foreground transition-colors hover:bg-surface-elevated"
-                >
-                  How it works
-                </Link>
-              </div>
+          <div className="stat-item anim" style={{ "--d": "0.58s" } as React.CSSProperties}>
+            <div className="stat-val-group">
+              <span className="stat-icon">%</span>
+              <span className="stat-val" data-target="99.99" data-decimals="2">0.00</span>
+              <span className="stat-suffix">%</span>
             </div>
+            <div className="stat-label">Platform Uptime</div>
           </div>
-        </section>
 
-        <section
-          id="how-it-works"
-          className="border-t border-border bg-surface-elevated"
-        >
-          <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-            <div className="mx-auto mb-14 max-w-2xl text-center">
-              <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                One flow. Zero friction.
-              </h2>
-              <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-                No configuration, no prompt engineering, no learning curve.
-                Upload your PDF and get structured study materials in seconds.
-              </p>
+          <div className="stat-item anim" style={{ "--d": "0.66s" } as React.CSSProperties}>
+            <div className="stat-val-group">
+              <span className="stat-icon">*</span>
+              <span className="stat-val" data-target="24" data-decimals="0">0</span>
+              <span className="stat-suffix">/7</span>
             </div>
-
-            <div className="mx-auto mb-16 flex max-w-xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <StepIndicator step={1} label="Upload PDF" />
-              <div className="hidden h-px flex-1 bg-border sm:block" />
-              <StepIndicator step={2} label="AI processes" />
-              <div className="hidden h-px flex-1 bg-border sm:block" />
-              <StepIndicator step={3} label="Study and export" />
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-3">
-              <FeatureCard
-                icon={FileText}
-                title="Smart extraction"
-                description="Drop any lecture PDF. Luminate extracts and structures the content, handling dense slides and multi-column layouts."
-              />
-              <FeatureCard
-                icon={Brain}
-                title="Active recall framework"
-                description="Gemini transforms raw text into a Feynman-style summary, targeted flashcards, and a curated terminology list."
-              />
-              <FeatureCard
-                icon={Download}
-                title="Export anywhere"
-                description="Download your study materials as clean Markdown. Take them into Notion, Obsidian, or any tool you prefer."
-              />
-            </div>
+            <div className="stat-label">Autonomous Runtime</div>
           </div>
-        </section>
 
-        <section className="border-t border-border">
-          <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="mb-4 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-                Ready to study smarter?
-              </h2>
-              <p className="mb-8 text-base leading-relaxed text-muted-foreground md:text-lg">
-                Your next exam is closer than you think. Start turning lectures
-                into lasting knowledge.
-              </p>
-              <Link
-                href="/register"
-                className="group inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-base font-semibold text-white shadow-lg shadow-accent/25 transition-all hover:bg-accent-hover hover:shadow-xl hover:shadow-accent/30"
-              >
-                Create your free account
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+          <div className="stat-item anim" style={{ "--d": "0.74s" } as React.CSSProperties}>
+            <div className="stat-val-group">
+              <span className="stat-icon">#</span>
+              <span className="stat-val" data-target="2.4" data-decimals="1">0.0</span>
+              <span className="stat-suffix">M</span>
             </div>
+            <div className="stat-label">Context Windows</div>
           </div>
-        </section>
-      </main>
+        </footer>
+      </div>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <span className="text-sm text-muted-foreground">
-            Luminate. Built for students, by students.
-          </span>
-          <span className="text-xs text-muted">
-            Powered by Gemini
-          </span>
-        </div>
-      </footer>
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }
