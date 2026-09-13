@@ -8,6 +8,8 @@ import { signOut } from "firebase/auth";
 import FileUpload from "@/components/ui/FileUpload";
 import Flashcard from "@/components/study/Flashcard";
 import Quiz, { QuizQuestion } from "@/components/study/Quiz";
+import SocraticTutor from "@/components/study/SocraticTutor";
+import KnowledgeGraph from "@/components/study/KnowledgeGraph";
 import Image from "next/image";
 
 interface FlashcardData {
@@ -23,7 +25,7 @@ export default function Dashboard() {
   const [flashcards, setFlashcards] = useState<FlashcardData[]>([]);
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz">("flashcards");
+  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph">("flashcards");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -188,6 +190,13 @@ export default function Dashboard() {
                       <i className={`fa-solid fa-clipboard-question mr-1.5 ${activeTab === 'quiz' ? 'text-white' : 'text-white/40'}`}></i>
                       Quiz
                     </button>
+                    <button 
+                      onClick={() => setActiveTab("graph")}
+                      className={`px-5 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 ${activeTab === 'graph' ? 'bg-[#3b82f6] text-white shadow-md' : 'text-white/50 hover:text-white/80'}`}
+                    >
+                      <i className={`fa-solid fa-diagram-project mr-1.5 ${activeTab === 'graph' ? 'text-white' : 'text-white/40'}`}></i>
+                      Graph
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -222,11 +231,18 @@ export default function Dashboard() {
                 {activeTab === "quiz" && (
                   <Quiz questions={quizQuestions} />
                 )}
+
+                {activeTab === "graph" && (
+                  <KnowledgeGraph />
+                )}
               </div>
             )}
           </div>
         </div>
       </main>
+      
+      {/* Premium Feature: Socratic Tutor */}
+      <SocraticTutor />
     </div>
   );
 }

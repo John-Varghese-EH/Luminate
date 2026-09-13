@@ -54,8 +54,29 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
             <i className="fa-solid fa-lightbulb text-white"></i>
           </div>
           
-          <div className="flex-1 flex items-center justify-center mt-6">
+          <div className="flex-1 flex items-center justify-center mt-8 mb-12">
             <p className="text-[17px] text-white leading-relaxed font-medium text-center">{answer}</p>
+          </div>
+
+          {/* Spaced Repetition Action Bar */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[85%] flex items-center justify-between gap-3 p-1.5 bg-[#09090b]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]" onClick={(e) => e.stopPropagation()}>
+            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-red-400 hover:text-white hover:bg-red-500/20 hover:shadow-[inset_0_0_12px_rgba(239,68,68,0.3)] transition-all active:scale-95 group/btn">
+              <span className="flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-rotate-left text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Hard
+              </span>
+            </button>
+            <div className="w-px h-6 bg-white/10"></div>
+            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-blue-400 hover:text-white hover:bg-blue-500/20 hover:shadow-[inset_0_0_12px_rgba(59,130,246,0.3)] transition-all active:scale-95 group/btn">
+              <span className="flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-check text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Good
+              </span>
+            </button>
+            <div className="w-px h-6 bg-white/10"></div>
+            <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold tracking-wide text-green-400 hover:text-white hover:bg-green-500/20 hover:shadow-[inset_0_0_12px_rgba(34,197,94,0.3)] transition-all active:scale-95 group/btn">
+              <span className="flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-forward-step text-[10px] opacity-70 group-hover/btn:opacity-100"></i> Easy
+              </span>
+            </button>
           </div>
         </div>
       </div>

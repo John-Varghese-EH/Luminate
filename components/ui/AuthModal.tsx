@@ -128,12 +128,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
           <form onSubmit={handleEmailAuth} className="flex flex-col gap-4 relative z-10">
             <div className="relative group/input">
-              <i className="fa-regular fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-pink-500 transition-colors"></i>
+              <i className="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-pink-500 transition-colors"></i>
               <input 
                 type="email" 
-                placeholder="Email address"
+                placeholder="Email Address" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 className="w-full bg-[#18181b] border border-white/5 text-white placeholder:text-white/30 rounded-2xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500/50 focus:bg-[#18181b] transition-all text-[15px] shadow-inner"
                 required
               />
@@ -142,9 +143,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <i className="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-pink-500 transition-colors"></i>
               <input 
                 type="password" 
-                placeholder="Password"
+                placeholder="Password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isSignUp ? "new-password" : "current-password"}
                 className="w-full bg-[#18181b] border border-white/5 text-white placeholder:text-white/30 rounded-2xl pl-11 pr-4 py-3.5 focus:outline-none focus:border-pink-500/50 focus:bg-[#18181b] transition-all text-[15px] shadow-inner"
                 required
               />

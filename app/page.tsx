@@ -658,7 +658,7 @@ export default function LandingPage() {
                   <p>&copy; {new Date().getFullYear()} Luminate. Designed to Evolve.</p>
                   <span className="hidden md:block w-1 h-1 rounded-full bg-white/20"></span>
                   <p>
-                    Made with <span className="text-pink-500 inline-block mx-1 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)] text-lg animate-pulse hover:scale-125 transition-transform duration-300 cursor-default">❤️</span> by{" "}
+                    Made with <span className="text-pink-500 inline-block mx-1 drop-shadow-[0_0_10px_rgba(236,72,153,0.8)] text-lg animate-pulse hover:scale-125 transition-transform duration-300 cursor-default"><i className="fa-solid fa-heart"></i></span> by{" "}
                     <a 
                       href="https://www.linkedin.com/in/John--Varghese/" 
                       target="_blank" 

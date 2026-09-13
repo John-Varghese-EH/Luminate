@@ -1,90 +1,58 @@
-export interface EmailCheckResult {
-  valid: boolean;
-  block: boolean;
-  domain: string;
-  base_domain: string;
-  text: string;
-  reason: string;
-  risk: number;
-  is_disposable: boolean;
-  is_email_forwarder: boolean;
-  is_public_free: boolean;
-  is_public_premium: boolean;
-  is_business_provider: boolean;
-  is_isp_email: boolean;
-  is_email_api: boolean;
-  is_web_hosting_email: boolean;
-  is_self_hosted: boolean;
-  is_parked: boolean;
-  is_role_based_email: boolean;
-  mx_host: string;
-  mx_ip: string;
-  mx_info: string;
-  mx_fallback: boolean;
-  mx_hosts: string[];
-  mx_ips: string[];
-  mx_priorities: Record<string, number>;
-  email_provider: string;
-  disposable_provider: string;
-  possible_typo: string[];
-  domain_age_days: number;
-  domain_created_at: string;
-  block_status_changed_at: string;
-}
-
 export interface EmailValidationResponse {
   isValid: boolean;
   error?: string;
-  data?: EmailCheckResult;
 }
 
+const ROLE_BASED_PREFIXES = [
+  'admin', 'info', 'support', 'contact', 'test', 
+  'noreply', 'no-reply', 'hello', 'sales', 'marketing'
+];
+
 /**
- * Checks an email against api.check-mail.org/v2/ to verify if it's a real, non-temporary account.
- * Useful for login and registration flows.
- * 
- * @param email The email address to check
- * @returns An object containing validation status and raw API data
+ * Checks an email against basic regex, role-based prefixes, and debounce.io for disposable domains.
+ * Provides user-friendly error messages and suggestions on rejection.
  */
 export async function checkEmailValidity(email: string): Promise<EmailValidationResponse> {
   try {
-    const params = new URLSearchParams();
-    params.append('email', email);
-
-    const response = await fetch('https://api.check-mail.org/v2/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params.toString(),
-    });
-
-    if (!response.ok) {
-      return { 
-        isValid: false, 
-        error: `Failed to check email: ${response.status} - ${response.statusText}` 
+    // 1. Basic format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        isValid: false,
+        error: "This email address doesn't look quite right. Did you make a typo?"
       };
     }
 
-    const data: EmailCheckResult = await response.json();
+    const [localPart] = email.toLowerCase().split('@');
 
-    // Determine if the email is a valid, real account.
-    // We reject if it's explicitly marked as disposable, blocked, or not valid.
-    const isTempOrBlocked = data.is_disposable || data.block || !data.valid;
-    
-    // You might also want to filter by risk score if needed (e.g. data.risk > 90)
-    // const isHighRisk = data.risk >= 90;
-    
-    const isValidRealAccount = !isTempOrBlocked;
+    // 2. Check for role-based/test emails
+    if (ROLE_BASED_PREFIXES.includes(localPart)) {
+      return {
+        isValid: false,
+        error: `"${localPart}@" is a role-based or test address. Please use a personal email address for your Luminate account.`
+      };
+    }
 
-    return { 
-      isValid: isValidRealAccount, 
-      data 
-    };
+    // 3. Check for disposable/temp emails by directly contacting debounce API
+    // Using a direct fetch to a free service prevents 401 Unauthorized console errors
+    const response = await fetch(`https://disposable.debounce.io/?email=${encodeURIComponent(email)}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data.disposable === "true") {
+        return {
+          isValid: false,
+          error: "This looks like a temporary or disposable email address. Please use your primary email to ensure you don't lose access to your study materials."
+        };
+      }
+    }
+
+    // If API fails or email is valid, we allow them to proceed (fail-open)
+    return { isValid: true };
+    
   } catch (error) {
-    console.error('[checkEmailValidity] Error checking email:', error);
-    return { 
-      isValid: false, 
-      error: error instanceof Error ? error.message : 'Unknown network error occurred.' 
-    };
+    console.warn('[checkEmailValidity] Error checking email:', error);
+    // Fail-open on network errors so users aren't blocked
+    return { isValid: true };
   }
 }
