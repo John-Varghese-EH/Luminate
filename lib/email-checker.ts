@@ -25,7 +25,27 @@ export async function checkEmailValidity(email: string): Promise<EmailValidation
 
     const [localPart, domain] = email.toLowerCase().split('@');
 
-    // 2. Check for role-based/test emails
+    // 2. RFC 5321 Length Limits
+    if (localPart.length > 64 || email.length > 254) {
+      return {
+        isValid: false,
+        error: "This email address is too long. The part before the @ symbol cannot exceed 64 characters."
+      };
+    }
+
+    // 3. Gibberish & Keyboard Smash Detection
+    // Checks for 6+ consecutive consonants or repetitive patterns (e.g., asdfgh)
+    const consecutiveConsonants = /[bcdfghjklmnpqrstvwxyz]{6,}/i;
+    const repetitiveSmash = /(.)\1{4,}/; // Same character 5+ times
+    
+    if (consecutiveConsonants.test(localPart) || repetitiveSmash.test(localPart)) {
+      return {
+        isValid: false,
+        error: "This looks like a random keyboard smash. Please provide a real email address."
+      };
+    }
+
+    // 4. Check for role-based/test emails
     if (ROLE_BASED_PREFIXES.includes(localPart)) {
       return {
         isValid: false,
