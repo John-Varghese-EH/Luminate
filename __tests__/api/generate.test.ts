@@ -69,6 +69,7 @@ describe('POST /api/generate', () => {
   });
 
   it('should return 400 when PDF has no readable text', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdfParse = require('pdf-parse-fork');
     pdfParse.mockResolvedValueOnce({ text: 'short' });
 

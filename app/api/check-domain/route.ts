@@ -49,8 +49,9 @@ export async function POST(req: Request) {
       }
 
       return NextResponse.json({ valid: true });
-    } catch (dnsError: any) {
-      console.warn(`[DNS Check] Error checking ${domain}:`, dnsError.message);
+    } catch (dnsError: unknown) {
+      const errorMessage = dnsError instanceof Error ? dnsError.message : String(dnsError);
+      console.warn(`[DNS Check] Error checking ${domain}:`, errorMessage);
       // ANY DNS error (ENOTFOUND, ENODATA, ESERVFAIL, ETIMEOUT) means we can't verify mail servers.
       // We assume the domain is invalid, misspelled, or non-existent.
       return NextResponse.json({ valid: false, reason: "Domain does not exist or has no mail servers" });
