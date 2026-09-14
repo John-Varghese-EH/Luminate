@@ -118,3 +118,64 @@ export async function generateStudySet(settings: AISettings, text: string) {
   }
   return parseJson(await complete(settings, system, [{ role: "user", content: `Study source:\n${text.slice(0, 30000)}` }]));
 }
+
+export async function generatePresentation(settings: AISettings, text: string, styleDef: any) {
+  const layoutsList = styleDef.slide_layout_templates?.map((l: any) => `- ${l.type}: ${l.usage}`).join('\n') || '';
+  
+  const system = `You are a professional presentation designer and copywriter. Generate a presentation based on the provided text, strictly following the selected visual style.
+  
+Style constraints:
+Theme: ${styleDef.design_system?.global_style?.theme || 'Professional'}
+Allowed Layout Types:
+${layoutsList}
+
+Return ONLY valid JSON with this schema:
+{
+  "slides": [
+    {
+      "layoutType": "exact string matching one of the Allowed Layout Types",
+      "title": "Slide Title",
+      "content": ["bullet point 1", "bullet point 2"],
+      "speakerNotes": "Brief notes for the presenter"
+    }
+  ]
+}
+Ensure the presentation has between 5 and 10 slides, capturing the key essence of the source material. Never use markdown fences for the output.`;
+
+  if (settings.provider === "gemini") {
+    const apiKey = settings.apiKey || process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("Add an API key in AI settings before generating presentations.");
+    const model = settings.model || DEFAULT_MODELS.gemini;
+    const client = new GoogleGenerativeAI(apiKey);
+    
+    const result = await client.getGenerativeModel({
+      model,
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            slides: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  layoutType: { type: SchemaType.STRING },
+                  title: { type: SchemaType.STRING },
+                  content: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                  speakerNotes: { type: SchemaType.STRING }
+                },
+                required: ["layoutType", "title", "content", "speakerNotes"]
+              }
+            }
+          },
+          required: ["slides"]
+        }
+      }
+    }).generateContent(`${system}\n\nStudy source:\n${text.slice(0, 30000)}`);
+    
+    return parseJson(result.response.text());
+  }
+  
+  return parseJson(await complete(settings, system, [{ role: "user", content: `Study source:\n${text.slice(0, 30000)}` }]));
+}

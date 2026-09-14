@@ -13,6 +13,8 @@ import KnowledgeGraph from "@/components/study/KnowledgeGraph";
 import SettingsModal from "@/components/ui/SettingsModal";
 import PodcastScript from "@/components/study/PodcastScript";
 import EssayFeedback from "@/components/study/EssayFeedback";
+import PresentationViewer from "@/components/study/PresentationViewer";
+import StyleSelector from "@/components/study/StyleSelector";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Image from "next/image";
 
@@ -227,7 +229,7 @@ export default function Dashboard() {
   const [podcastScript, setPodcastScript] = useState<PodcastTurn[]>([]);
   const [documentContext, setDocumentContext] = useState("");
   const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph" | "podcast" | "feedback">("flashcards");
+  const [activeTab, setActiveTab] = useState<"flashcards" | "quiz" | "graph" | "podcast" | "feedback" | "presentation">("flashcards");
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<"upload" | "tools">("upload");
@@ -239,6 +241,11 @@ export default function Dashboard() {
   const [studyMode, setStudyMode] = useState<"all" | "review">("all");
   const [lastQuizScore, setLastQuizScore] = useState<{ score: number; total: number } | null>(null);
   const [isProgressReady, setIsProgressReady] = useState(false);
+
+  // Presentation State
+  const [presentationSlides, setPresentationSlides] = useState<any[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [isGeneratingPresentation, setIsGeneratingPresentation] = useState(false);
 
   // Metrics state
   const [metrics, setMetrics] = useState({ streak: 0, mastered: 0, sessions: 0, focusMinutes: 0, studyDays: [] as string[] });
@@ -305,6 +312,8 @@ export default function Dashboard() {
       setActiveTab("flashcards");
       setRatings({});
       setLastQuizScore(null);
+      setPresentationSlides([]);
+      setSelectedStyle(null);
       setMetrics((current) => ({ ...current, sessions: current.sessions + 1 }));
       recordStudyActivity();
 
@@ -346,6 +355,8 @@ export default function Dashboard() {
       setActiveTab("flashcards");
       setRatings({});
       setLastQuizScore(null);
+      setPresentationSlides([]);
+      setSelectedStyle(null);
       setMetrics((current) => ({ ...current, sessions: current.sessions + 1 }));
       recordStudyActivity();
 
@@ -381,6 +392,29 @@ export default function Dashboard() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleGeneratePresentation = async (style: any) => {
+    setSelectedStyle(style);
+    setIsGeneratingPresentation(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("text", documentContext);
+      formData.append("style", JSON.stringify(style));
+      const res = await fetch("/api/generate-presentation", {
+        method: "POST",
+        body: formData,
+        headers: aiHeaders(aiSettings),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate presentation");
+      setPresentationSlides(data.slides || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsGeneratingPresentation(false);
+    }
   };
 
   if (loading) {
@@ -423,6 +457,7 @@ export default function Dashboard() {
   const tabs = [
     { id: "flashcards" as const, icon: "fa-layer-group", label: "Cards", count: flashcards.length },
     { id: "quiz" as const, icon: "fa-clipboard-question", label: "Quiz", count: quizQuestions.length },
+    { id: "presentation" as const, icon: "fa-person-chalkboard", label: "Slides", count: presentationSlides.length },
     { id: "graph" as const, icon: "fa-diagram-project", label: "Graph" },
     { id: "podcast" as const, icon: "fa-podcast", label: "Podcast" },
     { id: "feedback" as const, icon: "fa-feather", label: "Essay" },
@@ -621,6 +656,8 @@ export default function Dashboard() {
                                 setQuizQuestions(session.quizQuestions || []);
                                 setPodcastScript(session.podcastScript || []);
                                 setDocumentContext(session.documentContext || "");
+                                setPresentationSlides([]);
+                                setSelectedStyle(null);
                                 setActiveTab("flashcards");
                               }}
                               className="text-left bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-white/10 border border-gray-100 dark:border-white/[0.04] p-3.5 sm:p-4 rounded-[16px] transition-all duration-300 group flex flex-col items-start min-w-[140px] sm:min-w-0 hover:shadow-md dark:hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:scale-[1.02] active:scale-[0.97]"
@@ -679,6 +716,8 @@ export default function Dashboard() {
                         setQuizQuestions([]);
                         setPodcastScript([]);
                         setDocumentContext("");
+                        setPresentationSlides([]);
+                        setSelectedStyle(null);
                       }}
                       className="px-4 py-2.5 rounded-[14px] bg-white/80 dark:bg-white/5 border border-gray-200/50 dark:border-white/[0.06] text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-300 text-[11px] sm:text-[12px] font-bold flex items-center gap-1.5 active:scale-[0.97] shadow-sm backdrop-blur-md"
                     >
@@ -713,6 +752,31 @@ export default function Dashboard() {
                 {activeTab === "graph" && <KnowledgeGraph flashcards={flashcards} />}
                 {activeTab === "podcast" && <PodcastScript script={podcastScript} />}
                 {activeTab === "feedback" && <EssayFeedback />}
+                {activeTab === "presentation" && (
+                  <div className="space-y-4">
+                    {isGeneratingPresentation ? (
+                      <div className="py-20 flex flex-col items-center justify-center bg-white/80 dark:bg-black/20 rounded-[24px] border border-gray-200 dark:border-white/10">
+                        <div className="w-10 h-10 border-2 border-[#3b82f6] border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p className="text-gray-500 font-bold">Designing your slides...</p>
+                      </div>
+                    ) : presentationSlides.length > 0 && selectedStyle ? (
+                      <div className="space-y-4">
+                        <div className="flex justify-end">
+                           <button onClick={() => setPresentationSlides([])} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"><i className="fa-solid fa-paintbrush mr-1"></i> Change Style</button>
+                        </div>
+                        <PresentationViewer slides={presentationSlides} styleConfig={selectedStyle} />
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="p-5 bg-white/80 dark:bg-[#111113]/80 backdrop-blur-3xl rounded-[24px] border border-gray-200/50 dark:border-white/[0.05] shadow-sm">
+                          <h3 className="font-display font-bold text-lg mb-1 tracking-tight text-gray-900 dark:text-white">Generate Presentation</h3>
+                          <p className="text-[13px] text-gray-500 dark:text-white/50 font-medium">Select a design system to generate a structured presentation from your notes.</p>
+                        </div>
+                        <StyleSelector onSelect={handleGeneratePresentation} />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
