@@ -43,7 +43,7 @@ export default function SocraticTutor({ documentContext, aiSettings }: SocraticT
   const [inputMessage, setInputMessage] = useState("");
   const [agentPhase, setAgentPhase] = useState(0);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -58,10 +58,15 @@ export default function SocraticTutor({ documentContext, aiSettings }: SocraticT
   const [error, setError] = useState<string | null>(null);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const chatArea = chatAreaRef.current;
+    if (!chatArea) return;
+
+    // Do not scroll the document toward a hidden, off-canvas message endpoint.
+    chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: "smooth" });
   }, []);
 
   useEffect(() => {
+    if (!isOpen) return;
     scrollToBottom();
   }, [messages, isTyping, isOpen, error, scrollToBottom]);
 
@@ -200,7 +205,7 @@ export default function SocraticTutor({ documentContext, aiSettings }: SocraticT
       {/* ─── Agent Panel ─── */}
       <div
         ref={panelRef}
-        className={`fixed top-0 right-0 z-50 w-full sm:w-[420px] h-full flex flex-col transform transition-all duration-500 ${
+        className={`fixed inset-y-0 right-0 z-50 w-[min(420px,100dvw)] max-w-full flex flex-col transform transition-all duration-500 ${
           isOpen ? "translate-x-0 opacity-100 pointer-events-auto" : "translate-x-full opacity-0 pointer-events-none"
         }`}
         style={{ transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)" }}
@@ -272,7 +277,7 @@ export default function SocraticTutor({ documentContext, aiSettings }: SocraticT
         </div>
 
         {/* ─── Chat Area ─── */}
-        <div className="relative flex-1 overflow-y-auto px-4 sm:px-5 py-4 sm:py-5 flex flex-col gap-4 sm:gap-5 z-10" style={{ scrollbarWidth: 'none' }}>
+        <div ref={chatAreaRef} className="relative flex-1 overflow-y-auto overscroll-contain px-4 sm:px-5 py-4 sm:py-5 flex flex-col gap-4 sm:gap-5 z-10" style={{ scrollbarWidth: 'none' }}>
 
           {/* Capabilities grid — first load only */}
           {showCapabilities && (
@@ -371,7 +376,6 @@ export default function SocraticTutor({ documentContext, aiSettings }: SocraticT
             </div>
           )}
 
-          <div ref={messagesEndRef} />
         </div>
 
         {/* ─── Input Area ─── */}

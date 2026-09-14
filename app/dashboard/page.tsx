@@ -429,7 +429,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white relative transition-colors duration-300 page-transition-enter overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white relative transition-colors duration-300 page-transition-enter overflow-x-clip">
       {/* Background ambient light */}
       <div className="fixed top-0 left-0 w-[35%] h-[35%] bg-[#3b82f6]/8 blur-[150px] rounded-full pointer-events-none"></div>
       <div className="fixed bottom-0 right-0 w-[35%] h-[35%] bg-[#8b5cf6]/6 blur-[150px] rounded-full pointer-events-none"></div>
