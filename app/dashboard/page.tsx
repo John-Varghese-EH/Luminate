@@ -18,10 +18,20 @@ import Image from "next/image";
 
 import { StudySession, saveSession, getUserSessions, FlashcardData, QuizQuestion, PodcastTurn } from "@/lib/db";
 
+type AISettings = { provider: "gemini" | "openai" | "anthropic" | "openrouter" | "ollama" | "compatible"; apiKey?: string; model?: string; baseUrl?: string };
+const defaultAISettings: AISettings = { provider: "gemini", model: "gemini-2.5-flash" };
+const aiHeaders = (settings: AISettings) => ({
+  "x-luminate-provider": settings.provider,
+  ...(settings.apiKey ? { "x-luminate-api-key": settings.apiKey } : {}),
+  ...(settings.model ? { "x-luminate-model": settings.model } : {}),
+  ...(settings.baseUrl ? { "x-luminate-base-url": settings.baseUrl } : {}),
+});
+
 // ─────────────────────────────────────────────
 // Inline: Pomodoro Timer Component
 // ─────────────────────────────────────────────
-const PomodoroTimer = ({ onToggleFocus }: { onToggleFocus: (isFocus: boolean) => void }) => {
+const PomodoroTimer = ({ onToggleFocus, onFocusComplete }: { onToggleFocus: (isFocus: boolean) => void; onFocusComplete: (minutes: number) => void }) => {
+  const [workMinutes, setWorkMinutes] = useState<25 | 50>(25);
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -35,15 +45,16 @@ const PomodoroTimer = ({ onToggleFocus }: { onToggleFocus: (isFocus: boolean) =>
       setIsActive(false);
       setIsPaused(false);
       if (mode === "work") {
+        onFocusComplete(workMinutes);
         setMode("break");
-        setTimeLeft(5 * 60);
+        setTimeLeft((workMinutes === 50 ? 10 : 5) * 60);
       } else {
         setMode("work");
-        setTimeLeft(25 * 60);
+        setTimeLeft(workMinutes * 60);
       }
     }
     return () => clearInterval(interval);
-  }, [isActive, isPaused, timeLeft, mode]);
+  }, [isActive, isPaused, timeLeft, mode, onFocusComplete, workMinutes]);
 
   useEffect(() => {
     onToggleFocus(isActive && !isPaused);
@@ -62,12 +73,18 @@ const PomodoroTimer = ({ onToggleFocus }: { onToggleFocus: (isFocus: boolean) =>
     setIsActive(false);
     setIsPaused(false);
     setMode("work");
-    setTimeLeft(25 * 60);
+    setTimeLeft(workMinutes * 60);
+  };
+
+  const chooseDuration = (minutes: 25 | 50) => {
+    setWorkMinutes(minutes);
+    if (!isActive && mode === "work") setTimeLeft(minutes * 60);
   };
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const progress = mode === "work" ? ((25 * 60 - timeLeft) / (25 * 60)) * 100 : ((5 * 60 - timeLeft) / (5 * 60)) * 100;
+  const duration = mode === "work" ? workMinutes : workMinutes === 50 ? 10 : 5;
+  const progress = ((duration * 60 - timeLeft) / (duration * 60)) * 100;
 
   return (
     <div className="bg-white/80 dark:bg-[#111113]/80 backdrop-blur-3xl border border-gray-200/50 dark:border-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] rounded-[24px] p-5 sm:p-6 flex flex-col items-center justify-center relative overflow-hidden group transition-colors">
@@ -77,6 +94,7 @@ const PomodoroTimer = ({ onToggleFocus }: { onToggleFocus: (isFocus: boolean) =>
         <i className={`fa-solid ${mode === "work" ? "fa-stopwatch" : "fa-mug-hot"} text-lg ${isActive && !isPaused ? (mode === "work" ? "text-red-500" : "text-emerald-500") : "text-gray-400 dark:text-white/40"} transition-colors`}></i>
         <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40">{mode === "work" ? "Focus Time" : "Break Time"}</span>
       </div>
+      {mode === "work" && !isActive && <div className="flex p-1 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 mb-3 relative z-10"><button onClick={() => chooseDuration(25)} className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-colors ${workMinutes === 25 ? "bg-white dark:bg-white/15 text-blue-600 dark:text-blue-300 shadow-sm" : "text-gray-500 dark:text-white/40"}`}>25 min</button><button onClick={() => chooseDuration(50)} className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-colors ${workMinutes === 50 ? "bg-white dark:bg-white/15 text-blue-600 dark:text-blue-300 shadow-sm" : "text-gray-500 dark:text-white/40"}`}>50 min</button></div>}
 
       {/* Circular progress ring */}
       <div className="relative w-28 h-28 sm:w-32 sm:h-32 mb-3 flex items-center justify-center">
@@ -168,12 +186,12 @@ const QuickNotes = () => {
 // ─────────────────────────────────────────────
 // Inline: Study Stats Component
 // ─────────────────────────────────────────────
-const StudyStats = ({ metrics }: { metrics: { streak: number; mastered: number; sessions: number } }) => {
+const StudyStats = ({ metrics }: { metrics: { streak: number; mastered: number; sessions: number; focusMinutes: number } }) => {
   const stats = [
     { icon: "fa-cards-blank", label: "Cards Mastered", value: metrics.mastered, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-500/10" },
     { icon: "fa-brain", label: "Study Sessions", value: metrics.sessions, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-500/10" },
-    { icon: "fa-clock-rotate-left", label: "Avg. Session", value: "23m", color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
-    { icon: "fa-chart-line", label: "Week Growth", value: "+12%", color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10" },
+    { icon: "fa-clock-rotate-left", label: "Focus Time", value: `${metrics.focusMinutes}m`, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-500/10" },
+    { icon: "fa-chart-line", label: "Current Streak", value: `${metrics.streak}d`, color: "text-pink-500", bg: "bg-pink-50 dark:bg-pink-500/10" },
   ];
 
   return (
@@ -216,9 +234,38 @@ export default function Dashboard() {
   
   const [history, setHistory] = useState<StudySession[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [aiSettings, setAISettings] = useState<AISettings>(defaultAISettings);
+  const [ratings, setRatings] = useState<Record<string, "hard" | "good" | "easy">>({});
+  const [studyMode, setStudyMode] = useState<"all" | "review">("all");
+  const [lastQuizScore, setLastQuizScore] = useState<{ score: number; total: number } | null>(null);
+  const [isProgressReady, setIsProgressReady] = useState(false);
 
   // Metrics state
-  const [metrics] = useState({ streak: 12, mastered: 428, sessions: 34 });
+  const [metrics, setMetrics] = useState({ streak: 0, mastered: 0, sessions: 0, focusMinutes: 0, studyDays: [] as string[] });
+
+  useEffect(() => {
+    const restoreSettings = window.setTimeout(() => {
+      const saved = sessionStorage.getItem("luminate_ai_settings");
+      try { setAISettings(saved ? { ...defaultAISettings, ...JSON.parse(saved) } : defaultAISettings); } catch { setAISettings(defaultAISettings); }
+    }, 0);
+    return () => window.clearTimeout(restoreSettings);
+  }, []);
+
+  useEffect(() => {
+    const restoreProgress = window.setTimeout(() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem("luminate_study_progress") || "{}");
+        setRatings(saved.ratings || {});
+        setMetrics({ streak: saved.streak || 0, mastered: saved.mastered || 0, sessions: saved.sessions || 0, focusMinutes: saved.focusMinutes || 0, studyDays: saved.studyDays || [] });
+      } catch { /* A fresh study workspace is valid. */ }
+      setIsProgressReady(true);
+    }, 0);
+    return () => window.clearTimeout(restoreProgress);
+  }, []);
+
+  useEffect(() => {
+    if (isProgressReady) localStorage.setItem("luminate_study_progress", JSON.stringify({ ratings, ...metrics }));
+  }, [ratings, metrics, isProgressReady]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -244,19 +291,22 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const apiKey = localStorage.getItem("gemini_api_key") || "";
       const res = await fetch("/api/generate", {
         method: "POST",
         body: formData,
-        headers: apiKey ? { "x-gemini-api-key": apiKey } : {},
+        headers: aiHeaders(aiSettings),
       });
-      if (!res.ok) throw new Error("Failed to process PDF");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to process your study source");
       setFlashcards(data.flashcards || []);
       setQuizQuestions(data.quiz || []);
       setPodcastScript(data.podcastScript || []);
       if (data.extractedText) setDocumentContext(data.extractedText);
       setActiveTab("flashcards");
+      setRatings({});
+      setLastQuizScore(null);
+      setMetrics((current) => ({ ...current, sessions: current.sessions + 1 }));
+      recordStudyActivity();
 
       if (user) {
         const newSessionData = {
@@ -282,19 +332,22 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       formData.append("text", text);
-      const apiKey = localStorage.getItem("gemini_api_key") || "";
       const res = await fetch("/api/generate", {
         method: "POST",
         body: formData,
-        headers: apiKey ? { "x-gemini-api-key": apiKey } : {},
+        headers: aiHeaders(aiSettings),
       });
-      if (!res.ok) throw new Error("Failed to process text");
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to process your study notes");
       setFlashcards(data.flashcards || []);
       setQuizQuestions(data.quiz || []);
       setPodcastScript(data.podcastScript || []);
       if (data.extractedText) setDocumentContext(data.extractedText);
       setActiveTab("flashcards");
+      setRatings({});
+      setLastQuizScore(null);
+      setMetrics((current) => ({ ...current, sessions: current.sessions + 1 }));
+      recordStudyActivity();
 
       if (user) {
         const newSessionData = {
@@ -344,6 +397,28 @@ export default function Dashboard() {
   if (!user) return null;
 
   const hasContent = flashcards.length > 0 || quizQuestions.length > 0;
+  const reviewedCount = Object.keys(ratings).length;
+  const dailyGoal = 12;
+  const goalProgress = Math.min(100, (reviewedCount / dailyGoal) * 100);
+  const visibleFlashcards = studyMode === "review" ? flashcards.filter((card) => ratings[card.question] !== "easy") : flashcards;
+  const recordStudyActivity = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    setMetrics((current) => {
+      const studyDays = Array.from(new Set([...current.studyDays, today])).sort().slice(-365);
+      const cursor = new Date();
+      let streak = 0;
+      while (studyDays.includes(cursor.toISOString().slice(0, 10))) { streak += 1; cursor.setDate(cursor.getDate() - 1); }
+      return { ...current, studyDays, streak };
+    });
+  };
+  const handleCardRating = (question: string, rating: "hard" | "good" | "easy") => {
+    recordStudyActivity();
+    setRatings((current) => {
+      const previous = current[question];
+      if (previous !== rating) setMetrics((stats) => ({ ...stats, mastered: Math.max(0, stats.mastered + (rating === "easy" ? 1 : 0) - (previous === "easy" ? 1 : 0)) }));
+      return { ...current, [question]: rating };
+    });
+  };
 
   const tabs = [
     { id: "flashcards" as const, icon: "fa-layer-group", label: "Cards", count: flashcards.length },
@@ -374,6 +449,9 @@ export default function Dashboard() {
               <div className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse"></div>
               <span className="text-[11px] font-medium text-gray-600 dark:text-white/60 max-w-[180px] truncate">{user.email}</span>
             </div>
+            <button onClick={() => setIsSettingsOpen(true)} title="Change AI provider" className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-200/70 dark:border-blue-500/20 text-[10px] font-bold text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">
+              <i className="fa-solid fa-sparkles text-[9px]" />{aiSettings.provider === "ollama" ? "Local AI" : aiSettings.provider === "compatible" ? "Custom AI" : aiSettings.provider}
+            </button>
             <ThemeToggle />
             <button 
               onClick={() => setIsSettingsOpen(true)}
@@ -394,7 +472,7 @@ export default function Dashboard() {
       </header>
 
       {/* ─── Main Content ─── */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 sm:py-6 relative z-10">
+      <main id="main-content" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-24 sm:py-6 relative z-10">
         
         {/* ─── Top Bento Grid ─── */}
         <div className={`grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-12 gap-2.5 sm:gap-3 mb-5 sm:mb-6 transition-all duration-700 ${isFocusMode ? 'opacity-10 pointer-events-none -translate-y-4' : 'opacity-100 translate-y-0'}`}>
@@ -402,7 +480,7 @@ export default function Dashboard() {
           <div className="col-span-2 sm:col-span-4 lg:col-span-7 bg-white/80 dark:bg-[#111113]/80 backdrop-blur-3xl border border-gray-200/50 dark:border-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] rounded-[24px] p-4 sm:p-6 relative overflow-hidden flex flex-col justify-center min-h-[90px] sm:min-h-[110px] transition-colors group/welcome hover:shadow-lg dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)] duration-500">
             <div className="absolute top-0 right-0 w-40 sm:w-56 h-40 sm:h-56 bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-3xl rounded-full pointer-events-none group-hover/welcome:scale-125 transition-transform duration-700 ease-out"></div>
             <h2 className="text-base sm:text-xl font-display font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 relative z-10 tracking-tight">Welcome back, {user.email?.split('@')[0]} 👋</h2>
-            <p className="text-gray-500 dark:text-white/50 text-[11px] sm:text-[13px] leading-relaxed relative z-10 max-w-md font-medium">Upload a PDF to generate flashcards, quizzes, podcasts, and knowledge graphs instantly.</p>
+            <p className="text-gray-500 dark:text-white/50 text-[11px] sm:text-[13px] leading-relaxed relative z-10 max-w-md font-medium">Turn PDFs, notes, TXT, or Markdown into an active recall study workspace.</p>
           </div>
           
           {/* Daily Goal Ring */}
@@ -410,11 +488,11 @@ export default function Dashboard() {
             <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-1.5 sm:mb-2 flex items-center justify-center">
               <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-gray-100 dark:text-white/5" />
-                <circle cx="50" cy="50" r="40" stroke="#3b82f6" strokeWidth="8" fill="none" strokeDasharray="251" strokeDashoffset="62.75" strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out" />
+                <circle cx="50" cy="50" r="40" stroke="#3b82f6" strokeWidth="8" fill="none" strokeDasharray="251" strokeDashoffset={251 - 251 * goalProgress / 100} strokeLinecap="round" className="drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out" />
               </svg>
               <div className="flex flex-col items-center tabular-nums">
-                <span className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white leading-none tracking-tight">15</span>
-                <span className="text-[7px] sm:text-[8px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest">/20</span>
+                <span className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white leading-none tracking-tight">{reviewedCount}</span>
+                <span className="text-[7px] sm:text-[8px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest">/{dailyGoal}</span>
               </div>
             </div>
             <div className="text-gray-500 dark:text-white/50 text-[8px] sm:text-[9px] uppercase tracking-widest font-bold">Daily Goal</div>
@@ -424,7 +502,7 @@ export default function Dashboard() {
           <div className="col-span-1 sm:col-span-1 lg:col-span-1 bg-white/80 dark:bg-[#111113]/80 backdrop-blur-3xl border border-gray-200/50 dark:border-white/[0.05] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] rounded-[24px] p-3 sm:p-4 flex flex-col items-center justify-center text-center group transition-colors hover:scale-[1.02] duration-300 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[24px]"></div>
             <i className="fa-solid fa-fire text-orange-500 text-xl sm:text-2xl mb-1 group-hover:scale-125 transition-transform duration-300 relative z-10 drop-shadow-md"></i>
-            <div className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white relative z-10 tabular-nums tracking-tight">{metrics.streak}</div>
+            <div className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white relative z-10 tabular-nums tracking-tight">{metrics.streak || "—"}</div>
             <div className="text-gray-500 dark:text-white/50 text-[8px] sm:text-[9px] uppercase tracking-widest font-bold relative z-10">Streak</div>
           </div>
 
@@ -476,7 +554,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Pomodoro Timer */}
-                <PomodoroTimer onToggleFocus={setIsFocusMode} />
+                <PomodoroTimer onToggleFocus={setIsFocusMode} onFocusComplete={(minutes) => { recordStudyActivity(); setMetrics((current) => ({ ...current, focusMinutes: current.focusMinutes + minutes })); }} />
               </>
             ) : (
               <>
@@ -487,7 +565,7 @@ export default function Dashboard() {
                 <StudyStats metrics={metrics} />
 
                 {/* Pomodoro Timer (also in tools) */}
-                <PomodoroTimer onToggleFocus={setIsFocusMode} />
+                <PomodoroTimer onToggleFocus={setIsFocusMode} onFocusComplete={(minutes) => { recordStudyActivity(); setMetrics((current) => ({ ...current, focusMinutes: current.focusMinutes + minutes })); }} />
               </>
             )}
           </div>
@@ -619,15 +697,20 @@ export default function Dashboard() {
 
                 {/* Tab Content */}
                 {activeTab === "flashcards" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                    {flashcards.map((card, i) => (
-                      <Flashcard key={i} question={card.question} answer={card.answer} />
-                    ))}
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-blue-50/70 dark:bg-blue-500/[0.06] border border-blue-100 dark:border-blue-500/15">
+                      <div><p className="text-sm font-bold text-gray-900 dark:text-white">Active recall queue</p><p className="text-[11px] text-gray-500 dark:text-white/45 mt-0.5">Rate each card to build your review signal. {reviewedCount}/{flashcards.length} reviewed.</p></div>
+                      <div className="flex items-center rounded-xl p-1 bg-white dark:bg-black/25 border border-gray-200 dark:border-white/10">
+                        <button onClick={() => setStudyMode("all")} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${studyMode === "all" ? "bg-blue-500 text-white" : "text-gray-500 dark:text-white/45"}`}>All cards</button>
+                        <button onClick={() => setStudyMode("review")} className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${studyMode === "review" ? "bg-blue-500 text-white" : "text-gray-500 dark:text-white/45"}`}>Needs review</button>
+                      </div>
+                    </div>
+                    {visibleFlashcards.length === 0 ? <div className="py-14 text-center rounded-[28px] border border-dashed border-emerald-300 dark:border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-500/[0.05]"><i className="fa-solid fa-circle-check text-2xl text-emerald-500" /><p className="mt-3 font-bold text-gray-900 dark:text-white">Review queue complete</p><button onClick={() => setStudyMode("all")} className="mt-2 text-sm text-blue-600 dark:text-blue-400 font-semibold">View all cards</button></div> : <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">{visibleFlashcards.map((card, i) => <Flashcard key={`${card.question}-${i}`} question={card.question} answer={card.answer} onRate={(rating) => handleCardRating(card.question, rating)} />)}</div>}
                   </div>
                 )}
 
-                {activeTab === "quiz" && <Quiz questions={quizQuestions} />}
-                {activeTab === "graph" && <KnowledgeGraph />}
+                {activeTab === "quiz" && <div className="space-y-3">{lastQuizScore && <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-sm text-emerald-700 dark:text-emerald-300"><i className="fa-solid fa-trophy mr-2" />Latest score: {lastQuizScore.score}/{lastQuizScore.total}</div>}<Quiz key={quizQuestions.map((question) => question.question).join("|")} questions={quizQuestions} onComplete={(score, total) => { setLastQuizScore({ score, total }); recordStudyActivity(); }} /></div>}
+                {activeTab === "graph" && <KnowledgeGraph flashcards={flashcards} />}
                 {activeTab === "podcast" && <PodcastScript script={podcastScript} />}
                 {activeTab === "feedback" && <EssayFeedback />}
               </div>
@@ -637,18 +720,16 @@ export default function Dashboard() {
       </main>
       
       {/* Agent */}
-      <SocraticTutor documentContext={documentContext} />
+      <SocraticTutor documentContext={documentContext} aiSettings={aiSettings} />
 
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
-        initialKey={typeof window !== 'undefined' ? localStorage.getItem('gemini_api_key') || '' : ''}
-        onSave={(key) => {
-          if (key.trim()) {
-            localStorage.setItem('gemini_api_key', key.trim());
-          } else {
-            localStorage.removeItem('gemini_api_key');
-          }
+        initialSettings={aiSettings}
+        onSave={(settings) => {
+          setAISettings(settings);
+          sessionStorage.setItem("luminate_ai_settings", JSON.stringify(settings));
+          localStorage.removeItem("gemini_api_key");
         }}
       />
     </div>

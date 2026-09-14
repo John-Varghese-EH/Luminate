@@ -11,9 +11,10 @@ export interface QuizQuestion {
 
 interface QuizProps {
   questions: QuizQuestion[];
+  onComplete?: (score: number, total: number) => void;
 }
 
-export default function Quiz({ questions }: QuizProps) {
+export default function Quiz({ questions, onComplete }: QuizProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -34,6 +35,7 @@ export default function Quiz({ questions }: QuizProps) {
   };
 
   const nextQuestion = () => {
+    if (currentIndex + 1 === questions.length) onComplete?.(score, questions.length);
     setShowFeedback(false);
     setSelectedOption(null);
     setCurrentIndex(i => i + 1);

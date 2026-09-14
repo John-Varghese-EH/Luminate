@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import type { FlashcardData } from "@/lib/db";
 
 interface Node {
   id: string;
@@ -15,35 +16,16 @@ interface Edge {
   target: string;
 }
 
-export default function KnowledgeGraph() {
+export default function KnowledgeGraph({ flashcards }: { flashcards: FlashcardData[] }) {
   const [activeNode, setActiveNode] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const nodes: Node[] = [
-    { id: "1", label: "Quantum Computing", x: 50, y: 50, group: "core" },
-    { id: "2", label: "Superposition", x: 30, y: 30, group: "concept" },
-    { id: "3", label: "Entanglement", x: 70, y: 30, group: "concept" },
-    { id: "4", label: "Qubits", x: 50, y: 20, group: "detail" },
-    { id: "5", label: "Interference", x: 20, y: 60, group: "concept" },
-    { id: "6", label: "Shor's Algorithm", x: 80, y: 60, group: "detail" },
-    { id: "7", label: "Decoherence", x: 50, y: 80, group: "concept" },
-  ];
-
-  const edges: Edge[] = [
-    { source: "1", target: "2" },
-    { source: "1", target: "3" },
-    { source: "2", target: "4" },
-    { source: "3", target: "4" },
-    { source: "1", target: "5" },
-    { source: "1", target: "6" },
-    { source: "1", target: "7" },
-  ];
-
-  if (!mounted) return null;
+  const compact = (value: string, max = 26) => value.length > max ? `${value.slice(0, max - 1)}…` : value;
+  const concepts = flashcards.slice(0, 6);
+  const nodes: Node[] = [{ id: "core", label: "Your study set", x: 50, y: 50, group: "core" }, ...concepts.map((card, index) => {
+    const angle = (Math.PI * 2 * index) / Math.max(concepts.length, 1) - Math.PI / 2;
+    return { id: `concept-${index}`, label: compact(card.question.replace(/^what is\s*/i, "")), x: 50 + Math.cos(angle) * 32, y: 50 + Math.sin(angle) * 32, group: "concept" as const };
+  })];
+  const edges: Edge[] = concepts.map((_, index) => ({ source: "core", target: `concept-${index}` }));
 
   return (
     <div className="relative w-full h-[350px] sm:h-[450px] md:h-[500px] bg-white/90 dark:bg-gradient-to-b dark:from-[#18181b]/90 dark:to-[#09090b]/90 backdrop-blur-2xl rounded-[32px] border border-gray-200/50 dark:border-white/10 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] shadow-lg dark:shadow-[0_0_80px_-20px_rgba(59,130,246,0.1)] transition-colors">
@@ -86,7 +68,7 @@ export default function KnowledgeGraph() {
               top: `${node.y}%`,
             }}
           >
-            <div
+            <button type="button" aria-label={`Explore ${node.label}`}
               onMouseEnter={() => setActiveNode(node.id)}
               onMouseLeave={() => setActiveNode(null)}
               onTouchStart={() => setActiveNode(node.id)}
@@ -123,7 +105,7 @@ export default function KnowledgeGraph() {
               }`}>
                 {node.label}
               </div>
-            </div>
+            </button>
           </div>
         ))}
       </div>

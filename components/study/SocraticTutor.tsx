@@ -12,6 +12,7 @@ interface Message {
 
 interface SocraticTutorProps {
   documentContext?: string;
+  aiSettings: { provider: string; apiKey?: string; model?: string; baseUrl?: string };
 }
 
 const AGENT_PHASES = [
@@ -36,7 +37,7 @@ const PROMPT_CHIPS = [
   { icon: "fa-sitemap", label: "Mind map this" },
 ];
 
-export default function SocraticTutor({ documentContext }: SocraticTutorProps) {
+export default function SocraticTutor({ documentContext, aiSettings }: SocraticTutorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
@@ -115,12 +116,14 @@ export default function SocraticTutor({ documentContext }: SocraticTutorProps) {
     setError(null);
 
     try {
-      const apiKey = localStorage.getItem("gemini_api_key") || "";
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(apiKey ? { "x-gemini-api-key": apiKey } : {})
+          "x-luminate-provider": aiSettings.provider,
+          ...(aiSettings.apiKey ? { "x-luminate-api-key": aiSettings.apiKey } : {}),
+          ...(aiSettings.model ? { "x-luminate-model": aiSettings.model } : {}),
+          ...(aiSettings.baseUrl ? { "x-luminate-base-url": aiSettings.baseUrl } : {}),
         },
         body: JSON.stringify({
           messages: updatedMessages.map(m => ({ role: m.role, content: m.content })),

@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
         },
         {
           key: 'X-Frame-Options',
-          value: 'SAMEORIGIN'
+          value: 'DENY'
         },
         {
           key: 'X-Content-Type-Options',
@@ -39,11 +39,23 @@ const nextConfig: NextConfig = {
         },
         {
           key: 'Referrer-Policy',
-          value: 'origin-when-cross-origin'
+          value: 'strict-origin-when-cross-origin'
         },
         {
           key: 'Permissions-Policy',
-          value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
+          value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()'
+        },
+        {
+          key: 'X-Permitted-Cross-Domain-Policies',
+          value: 'none'
+        },
+        {
+          key: 'Origin-Agent-Cluster',
+          value: '?1'
+        },
+        {
+          key: 'Content-Security-Policy',
+          value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://db.onlinewebfonts.com; font-src 'self' data: https://cdnjs.cloudflare.com https://db.onlinewebfonts.com; img-src 'self' data: blob: https://lh3.googleusercontent.com https://www.svgrepo.com; media-src 'self' https://d8j0ntlcm91z4.cloudfront.net; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com; upgrade-insecure-requests"
         }
       ],
     },

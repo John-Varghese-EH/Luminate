@@ -5,9 +5,10 @@ import { useState } from "react";
 interface FlashcardProps {
   question: string;
   answer: string;
+  onRate?: (rating: "hard" | "good" | "easy") => void;
 }
 
-export default function Flashcard({ question, answer }: FlashcardProps) {
+export default function Flashcard({ question, answer, onRate }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [rating, setRating] = useState<"hard" | "good" | "easy" | null>(null);
 
@@ -15,6 +16,7 @@ export default function Flashcard({ question, answer }: FlashcardProps) {
     e.stopPropagation();
     setRating(type);
     setIsFlipped(false);
+    onRate?.(type);
   };
 
   return (

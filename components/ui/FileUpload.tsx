@@ -30,10 +30,10 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      if (file.type === "application/pdf") {
+      if (file.type === "application/pdf" || file.type.startsWith("text/") || /\.(md|txt)$/i.test(file.name)) {
         onFileSelect(file);
       } else {
-        alert("Please upload a PDF file.");
+        alert("Please upload a PDF, TXT, or Markdown file.");
       }
     }
   }, [onFileSelect]);
@@ -41,10 +41,10 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type === "application/pdf") {
+      if (file.type === "application/pdf" || file.type.startsWith("text/") || /\.(md|txt)$/i.test(file.name)) {
         onFileSelect(file);
       } else {
-        alert("Please upload a PDF file.");
+        alert("Please upload a PDF, TXT, or Markdown file.");
       }
     }
   };
@@ -106,7 +106,7 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
             id="file-upload-input"
             name="file-upload"
             type="file" 
-            accept="application/pdf" 
+            accept="application/pdf,text/plain,text/markdown,.txt,.md"
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
             onChange={handleChange}
           />
@@ -122,8 +122,8 @@ export default function FileUpload({ onFileSelect, onTextSubmit, isLoading }: Fi
                 ${isDragging ? "text-white" : "text-[#3b82f6] group-hover:text-[#60a5fa]"}
               `}></i>
             </div>
-            <h3 className="text-lg sm:text-[22px] font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Upload Lecture PDF</h3>
-            <p className="text-sm sm:text-[15px] text-gray-500 dark:text-white/50 max-w-[200px]">Drag and drop your file here, or click to browse.</p>
+            <h3 className="text-lg sm:text-[22px] font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Add a study source</h3>
+            <p className="text-sm sm:text-[15px] text-gray-500 dark:text-white/50 max-w-[240px]">Drop a PDF, TXT, or Markdown file—or click to browse.</p>
           </div>
         </div>
       ) : (
