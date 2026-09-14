@@ -80,21 +80,19 @@ export default function StyleSelector({ onSelect }: { onSelect: (style: StyleCon
             <button
               key={style.id}
               onClick={() => onSelect(style)}
-              className="text-left group relative flex flex-col h-40 rounded-[20px] overflow-hidden border border-gray-200 dark:border-white/10 hover:shadow-lg transition-all hover:scale-[1.02] duration-300"
+              className="text-left group relative flex flex-col h-[260px] rounded-[20px] overflow-hidden border border-gray-200 dark:border-white/10 hover:shadow-lg transition-all hover:scale-[1.02] duration-300"
               style={{ backgroundColor: bg, color: text }}
             >
-              <div 
-                className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity group-hover:opacity-50 transition-all duration-700 group-hover:scale-110"
-                style={{ backgroundImage: `url('/previews/${style.id}/${style.id}_1.webp')` }}
-              ></div>
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{ background: `linear-gradient(to top, ${bg}dd, transparent)` }}
-              ></div>
-              <div className="p-4 flex-1 z-10 flex flex-col justify-between h-full">
+              <div className="w-full h-[140px] relative overflow-hidden bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/5">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                  style={{ backgroundImage: `url('/previews/${style.id}/${style.id}_1.webp')` }}
+                ></div>
+              </div>
+              <div className="p-4 flex-1 z-10 flex flex-col justify-between h-full relative">
                 <div>
-                  <h3 className="font-bold text-sm mb-1 line-clamp-1 drop-shadow-sm">{style.name}</h3>
-                  <p className="text-[10px] opacity-80 line-clamp-2 leading-tight font-medium drop-shadow-sm">
+                  <h3 className="font-bold text-sm mb-1 line-clamp-1">{style.name}</h3>
+                  <p className="text-[10px] opacity-80 line-clamp-2 leading-tight font-medium">
                     {style.description || style.design_system?.global_style?.theme || "A custom presentation style."}
                   </p>
                 </div>
@@ -103,11 +101,11 @@ export default function StyleSelector({ onSelect }: { onSelect: (style: StyleCon
                   <div className="w-4 h-4 rounded-full border border-black/20 dark:border-white/20 shadow-sm" style={{ backgroundColor: surface }}></div>
                   <div className="w-4 h-4 rounded-full border border-black/20 dark:border-white/20 shadow-sm" style={{ backgroundColor: text }}></div>
                 </div>
+                <div 
+                  className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-10 -mr-6 -mt-6 transition-transform group-hover:scale-150 duration-500 pointer-events-none"
+                  style={{ backgroundColor: primary }}
+                ></div>
               </div>
-              <div 
-                className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 -mr-6 -mt-6 transition-transform group-hover:scale-150 duration-500"
-                style={{ backgroundColor: primary }}
-              ></div>
             </button>
           );
         })}
