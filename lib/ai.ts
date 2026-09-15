@@ -69,7 +69,10 @@ export async function complete(settings: AISettings, system: string, messages: A
   if (settings.provider === "gemini") {
     const client = new GoogleGenerativeAI(apiKey!);
     const gemini = client.getGenerativeModel({ model, systemInstruction: system });
-    const history = messages.slice(0, -1).map((message) => ({ role: message.role === "ai" ? "model" : "user", parts: [{ text: message.content }] }));
+    let history = messages.slice(0, -1).map((message) => ({ role: message.role === "ai" ? "model" : "user", parts: [{ text: message.content }] }));
+    if (history.length > 0 && history[0].role === "model") {
+      history = [{ role: "user", parts: [{ text: "Hello." }] }, ...history];
+    }
     const result = await gemini.startChat({ history }).sendMessage(messages.at(-1)?.content || "");
     return result.response.text();
   }
