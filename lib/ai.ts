@@ -119,8 +119,33 @@ export async function generateStudySet(settings: AISettings, text: string) {
   return parseJson(await complete(settings, system, [{ role: "user", content: `Study source:\n${text.slice(0, 30000)}` }]));
 }
 
-export async function generatePresentation(settings: AISettings, text: string, styleDef: any) {
-  const layoutsList = styleDef.slide_layout_templates?.map((l: any) => `- ${l.type}: ${l.usage}`).join('\n') || '';
+/**
+ * Configuration schema for presentation slide styles.
+ */
+export interface StyleConfig {
+  id: string;
+  name: string;
+  description?: string;
+  design_system?: {
+    global_style?: {
+      theme?: string;
+    };
+  };
+  slide_layout_templates?: Array<{ type: string; usage: string }>;
+}
+
+/**
+ * Generates structured presentation slides using the Gemini 2.5 Flash model.
+ * Enforces output to match the allowed layouts defined in the provided style.
+ * 
+ * @param {AISettings} settings - The user's AI API configuration.
+ * @param {string} text - The source document content.
+ * @param {StyleConfig} styleDef - The visual style constraints for the presentation.
+ * @returns {Promise<any>} A JSON object containing an array of generated slides.
+ * @throws {Error} Throws an error if the generation or parsing fails.
+ */
+export async function generatePresentation(settings: AISettings, text: string, styleDef: StyleConfig) {
+  const layoutsList = styleDef.slide_layout_templates?.map((l: { type: string; usage: string }) => `- ${l.type}: ${l.usage}`).join('\n') || '';
   
   const system = `You are a professional presentation designer and copywriter. Generate a presentation based on the provided text, strictly following the selected visual style.
   

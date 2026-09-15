@@ -13,12 +13,13 @@ import KnowledgeGraph from "@/components/study/KnowledgeGraph";
 import SettingsModal from "@/components/ui/SettingsModal";
 import PodcastScript from "@/components/study/PodcastScript";
 import EssayFeedback from "@/components/study/EssayFeedback";
-import PresentationViewer from "@/components/study/PresentationViewer";
+import PresentationViewer, { SlideData } from "@/components/study/PresentationViewer";
 import StyleSelector from "@/components/study/StyleSelector";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import Image from "next/image";
 
 import { StudySession, saveSession, getUserSessions, FlashcardData, QuizQuestion, PodcastTurn } from "@/lib/db";
+import { StyleConfig } from "@/lib/ai";
 
 type AISettings = { provider: "gemini" | "openai" | "anthropic" | "openrouter" | "ollama" | "compatible"; apiKey?: string; model?: string; baseUrl?: string };
 const defaultAISettings: AISettings = { provider: "gemini", model: "gemini-2.5-flash" };
@@ -243,8 +244,8 @@ export default function Dashboard() {
   const [isProgressReady, setIsProgressReady] = useState(false);
 
   // Presentation State
-  const [presentationSlides, setPresentationSlides] = useState<any[]>([]);
-  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [presentationSlides, setPresentationSlides] = useState<SlideData[]>([]);
+  const [selectedStyle, setSelectedStyle] = useState<StyleConfig | null>(null);
   const [isGeneratingPresentation, setIsGeneratingPresentation] = useState(false);
 
   // Metrics state
@@ -394,7 +395,7 @@ export default function Dashboard() {
     document.body.removeChild(link);
   };
 
-  const handleGeneratePresentation = async (style: any) => {
+  const handleGeneratePresentation = async (style: StyleConfig) => {
     setSelectedStyle(style);
     setIsGeneratingPresentation(true);
     setError("");

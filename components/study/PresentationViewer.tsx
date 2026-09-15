@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleConfig } from "./StyleSelector";
 
-interface SlideData {
+export interface SlideData {
   layoutType: string;
   title: string;
   content: string[];
@@ -19,7 +19,6 @@ export default function PresentationViewer({ slides, styleConfig }: { slides: Sl
   const bg = palette?.background || "#ffffff";
   const textMain = palette?.text_main || "#000000";
   const primary = palette?.primary || palette?.primary_color || "#3b82f6";
-  const surface = palette?.surface || "#f3f4f6";
 
   const nextSlide = () => setCurrentSlide(c => Math.min(c + 1, slides.length - 1));
   const prevSlide = () => setCurrentSlide(c => Math.max(c - 1, 0));

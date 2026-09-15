@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: Luminate API
+  description: API documentation for the Luminate active recall engine. Optimized for performance and security.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://luminate-j0x.firebaseapp.com
+    description: Production server
+
+paths:
+  /api/generate:
+    post:
+      summary: Generate Study Material
+      description: Uses Gemini 2.5 to generate flashcards, quizzes, and podcasts from a provided document or text string.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF or Markdown file to parse.
+                text:
+                  type: string
+                  description: Raw text string to generate from (if no file is provided).
+      responses:
+        '200':
+          description: Successfully generated study materials.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flashcards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flashcard'
+                  quiz:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuizQuestion'
+                  podcast:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PodcastTurn'
+        '400':
+          description: Invalid input (file too large, unsupported format).
+        '500':
+          description: Internal server error (AI generation failed).
+
+  /api/generate-presentation:
+    post:
+      summary: Generate Presentation Slides
+      description: Generates a JSON array of slides based on a given text and presentation style schema.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Raw text context for the presentation.
+                file:
+                  type: string
+                  format: binary
+                style:
+                  type: string
+                  description: JSON stringified StyleConfig object determining the layout constraints.
+      responses:
+        '200':
+          description: Successfully generated slides.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slides:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slide'
+
+  /api/chat:
+    post:
+      summary: Chat with AI Tutor
+      description: Send a conversational message to the Socratic AI tutor.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant, system]
+                      content:
+                        type: string
+      responses:
+        '200':
+          description: Streamed conversational response.
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/check-domain:
+    get:
+      summary: Check Domain MX Records
+      description: Verifies if a domain has valid MX records (used for email validation).
+      parameters:
+        - in: query
+          name: domain
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Domain validation result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  error:
+                    type: string
+
+  /api/check-email:
+    get:
+      summary: Check Email Validity
+      description: Verifies the format and domain validity of an email address.
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email validation result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  error:
+                    type: string
+
+components:
+  schemas:
+    Flashcard:
+      type: object
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+    QuizQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctAnswer:
+          type: string
+        explanation:
+          type: string
+    PodcastTurn:
+      type: object
+      properties:
+        speaker:
+          type: string
+          enum: [Host 1, Host 2]
+        text:
+          type: string
+    Slide:
+      type: object
+      properties:
+        layoutType:
+          type: string
+        title:
+          type: string
+        content:
+          type: array
+          items:
+            type: string
+        speakerNotes:
+          type: string

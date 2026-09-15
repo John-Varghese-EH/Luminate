@@ -4,12 +4,10 @@ import { useEffect, useState, useRef, MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AuthModal from "@/components/ui/AuthModal";
-
 // --- Advanced Hooks & Components ---
 
 function useScrambleText(originalText: string, scrambleSpeed: number = 50, duration: number = 800) {
   const [text, setText] = useState(originalText);
-  const [isHovering, setIsHovering] = useState(false);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
   
   const triggerScramble = () => {
@@ -93,55 +91,6 @@ function MagneticButton({ children, onClick, className = "" }: { children: React
     >
       {children}
     </button>
-  );
-}
-
-function TiltCard({ children, className = "", withBorderTrace = false }: { children: React.ReactNode, className?: string, withBorderTrace?: boolean }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || !glowRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-
-    cardRef.current.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-    glowRef.current.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.08) 0%, transparent 40%)`;
-  };
-  
-  const handleMouseLeave = () => {
-    if (!cardRef.current || !glowRef.current) return;
-    cardRef.current.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
-    glowRef.current.style.background = "transparent";
-  };
-
-  return (
-    <div 
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={`relative transition-all duration-500 ease-out group ${className}`}
-      style={{ transformStyle: 'preserve-3d' }}
-    >
-      {withBorderTrace && (
-        <div className="absolute inset-[-1px] rounded-[3rem] overflow-hidden z-0">
-          <div className="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0_340deg,rgba(255,255,255,0.6)_360deg)] animate-spin-slow opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        </div>
-      )}
-      <div className="absolute inset-0 bg-[#09090b]/90 rounded-[3rem] z-[1]"></div>
-      <div ref={glowRef} className="absolute inset-0 z-[2] pointer-events-none transition-colors duration-300 rounded-[3rem]"></div>
-      
-      <div className="relative z-[3] w-full h-full">
-        {children}
-      </div>
-    </div>
   );
 }
 

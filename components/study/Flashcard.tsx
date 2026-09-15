@@ -21,9 +21,18 @@ export default function Flashcard({ question, answer, onRate }: FlashcardProps) 
 
   return (
     <div
-      className="group h-[260px] sm:h-[280px] w-full cursor-pointer animate-fade-in"
+      role="button"
+      tabIndex={0}
+      aria-label="Flashcard"
+      className="group h-[260px] sm:h-[280px] w-full cursor-pointer animate-fade-in focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-[32px]"
       style={{ perspective: "1200px" }}
       onClick={() => setIsFlipped(!isFlipped)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsFlipped(!isFlipped);
+        }
+      }}
     >
       <div
         className={`relative h-full w-full rounded-[28px] sm:rounded-[32px] shadow-lg dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-700 ease-out ${

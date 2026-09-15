@@ -26,7 +26,7 @@ describe('Flashcard Component', () => {
 
   it('toggles flip state on click', () => {
     render(<Flashcard {...defaultProps} />);
-    const card = screen.getByRole('button');
+    const card = screen.getByLabelText('Flashcard');
     
     // Initially not flipped
     expect(card.querySelector('[style*="preserve-3d"]')).not.toHaveClass('rotate-y-180');
@@ -41,7 +41,7 @@ describe('Flashcard Component', () => {
 
   it('is accessible with proper role and label', () => {
     render(<Flashcard {...defaultProps} />);
-    const card = screen.getByRole('button');
-    expect(card).toHaveAttribute('aria-label');
+    const card = screen.getByLabelText('Flashcard');
+    expect(card).toHaveAttribute('role', 'button');
   });
 });

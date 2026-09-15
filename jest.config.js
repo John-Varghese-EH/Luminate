@@ -12,7 +12,7 @@ const config = {
     '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
   },
   setupFilesAfterSetup: ['<rootDir>/jest.setup.ts'],
-  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/.next/', '<rootDir>/re/'],
 };
 
 module.exports = config;

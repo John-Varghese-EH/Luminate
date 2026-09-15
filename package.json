@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "check-links": "npx broken-link-checker https://luminate-j0x.firebaseapp.com -ro"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

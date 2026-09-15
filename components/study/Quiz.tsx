@@ -85,7 +85,13 @@ export default function Quiz({ questions, onComplete }: QuizProps) {
         </div>
       </div>
 
-      <div className="w-full h-1 bg-gray-100 dark:bg-white/5 rounded-full mb-6 sm:mb-8 overflow-hidden relative z-10">
+      <div 
+        role="progressbar"
+        aria-valuenow={currentIndex + 1}
+        aria-valuemin={1}
+        aria-valuemax={questions.length}
+        className="w-full h-1 bg-gray-100 dark:bg-white/5 rounded-full mb-6 sm:mb-8 overflow-hidden relative z-10"
+      >
         <div 
           className="h-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] rounded-full transition-all duration-500 ease-out"
           style={{ width: `${((currentIndex) / questions.length) * 100}%` }}

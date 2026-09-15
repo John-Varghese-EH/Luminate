@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 
+import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/generate/route';
 
 // Mock pdf-parse-fork
@@ -55,57 +56,57 @@ describe('POST /api/generate', () => {
   });
 
   it('should return 400 when no file is provided', async () => {
-    const formData = new FormData();
-    const request = new Request('http://localhost/api/generate', {
+    const request = new NextRequest('http://localhost:3000/api/generate', {
       method: 'POST',
-      body: formData,
+      body: new FormData(),
     });
 
-    const response = await POST(request as never);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('No file provided');
+    expect(data.error).toContain('Add at least 50 readable characters');
   });
 
   it('should return 400 when PDF has no readable text', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const pdfParse = require('pdf-parse-fork');
     pdfParse.mockResolvedValueOnce({ text: 'short' });
 
-    const file = new File(['fake-pdf'], 'test.pdf', { type: 'application/pdf' });
     const formData = new FormData();
+    const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' });
     formData.append('file', file);
 
-    const request = new Request('http://localhost/api/generate', {
+    const request = new NextRequest('http://localhost:3000/api/generate', {
       method: 'POST',
       body: formData,
     });
 
-    const response = await POST(request as never);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toContain('No readable text');
+    expect(data.error).toContain('Add at least 50 readable characters');
   });
 
   it('should return 500 when API key is not configured', async () => {
-    delete process.env.GEMINI_API_KEY;
-
-    const file = new File(['fake-pdf-content'], 'test.pdf', { type: 'application/pdf' });
     const formData = new FormData();
+    const file = new File(['valid content that is long enough to pass the length check here'], 'test.pdf', { type: 'application/pdf' });
     formData.append('file', file);
-
-    const request = new Request('http://localhost/api/generate', {
+    
+    // Create a mock NextRequest
+    const request = new NextRequest('http://localhost:3000/api/generate', {
       method: 'POST',
       body: formData,
     });
+    // Remove the API key header and env var
+    request.headers.delete('x-luminate-api-key');
+    delete process.env.GEMINI_API_KEY;
 
-    const response = await POST(request as never);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(500);
-    expect(data.error).toBe('API key not configured');
+    expect(data.error).toContain('Add an API key in AI settings');
   });
 
   it('should successfully generate flashcards and quiz', async () => {
@@ -113,12 +114,15 @@ describe('POST /api/generate', () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const request = new Request('http://localhost/api/generate', {
+    const request = new NextRequest('http://localhost:3000/api/generate', {
       method: 'POST',
       body: formData,
+      headers: new Headers({
+        'x-luminate-api-key': 'test-key'
+      })
     });
 
-    const response = await POST(request as never);
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -135,12 +139,15 @@ describe('POST /api/generate', () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const request = new Request('http://localhost/api/generate', {
+    const request = new NextRequest('http://localhost:3000/api/generate', {
       method: 'POST',
       body: formData,
+      headers: new Headers({
+        'x-luminate-api-key': 'test-key'
+      })
     });
 
-    const response = await POST(request as never);
+    const response = await POST(request);
     const data = await response.json();
 
     data.quiz.forEach((q: { options: string[] }) => {

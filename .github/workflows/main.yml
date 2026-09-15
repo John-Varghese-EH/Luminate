@@ -1,0 +1,48 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Run Linter (ESLint)
+      run: npm run lint
+
+    - name: Run Unit Tests (Jest)
+      run: npm run test
+      env:
+        CI: true
+
+    - name: Build Application (Next.js)
+      run: npm run build
+      env:
+        # Mocking minimal env vars to allow Next.js build to pass without secrets
+        NEXT_PUBLIC_FIREBASE_API_KEY: "mock_key"
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "mock_domain"
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: "mock_id"
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "mock_bucket"
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "mock_sender"
+        NEXT_PUBLIC_FIREBASE_APP_ID: "mock_app_id"
+        GEMINI_API_KEY: "mock_gemini_key"

@@ -80,7 +80,8 @@ export default function StyleSelector({ onSelect }: { onSelect: (style: StyleCon
             <button
               key={style.id}
               onClick={() => onSelect(style)}
-              className="text-left group relative flex flex-col h-[260px] rounded-[20px] overflow-hidden border border-gray-200 dark:border-white/10 hover:shadow-lg transition-all hover:scale-[1.02] duration-300"
+              aria-label={`Select ${style.name} presentation style`}
+              className="text-left group relative flex flex-col h-[260px] rounded-[20px] overflow-hidden border border-gray-200 dark:border-white/10 hover:shadow-lg transition-all hover:scale-[1.02] duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ backgroundColor: bg, color: text }}
             >
               <div className="w-full h-[140px] relative overflow-hidden bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/5">
